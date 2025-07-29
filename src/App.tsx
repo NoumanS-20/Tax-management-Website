@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
 import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
 import UserDashboard from './pages/Dashboard/UserDashboard';
@@ -94,6 +95,7 @@ function App() {
           
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route
               path="/*"
               element={

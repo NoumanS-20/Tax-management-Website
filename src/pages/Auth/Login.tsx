@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Calculator } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/UI/Button';
@@ -38,7 +38,7 @@ const Login: React.FC = () => {
             <Calculator className="h-8 w-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Welcome to FinStack</h2>
-          <p className="mt-2 text-gray-600">Smart ITR filing made simple for India</p>
+          <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
 
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
@@ -119,49 +119,14 @@ const Login: React.FC = () => {
               Sign in
             </Button>
           </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Accounts</span>
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-2">
-              <button
-                type="button"
-                onClick={() => { setEmail('user@finstack.com'); setPassword('password'); }}
-                className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-              >
-                👤 Individual Taxpayer: user@finstack.com
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail('admin@finstack.com'); setPassword('password'); }}
-                className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-              >
-                🔧 System Admin: admin@finstack.com
-              </button>
-              <button
-                type="button"
-                onClick={() => { setEmail('accountant@finstack.com'); setPassword('password'); }}
-                className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-              >
-                📊 CA/Tax Consultant: accountant@finstack.com
-              </button>
-            </div>
-          </div>
         </div>
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
-            <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign up for free
-            </a>
+            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              Create account
+            </Link>
           </p>
         </div>
       </div>

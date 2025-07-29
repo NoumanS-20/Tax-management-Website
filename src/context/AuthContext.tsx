@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthContextType } from '../types';
+import { apiService } from '../services/api';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,92 +23,148 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('accessToken');
     const storedUser = localStorage.getItem('user');
     
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
+      // Verify token is still valid
+      verifyToken();
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
+
+  const verifyToken = async () => {
+    try {
+      const response = await apiService.getProfile();
+      if (response.success && response.data) {
+        setUser(response.data.user);
+      }
+    } catch (error) {
+      // Token is invalid, clear storage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      setUser(null);
+      setToken(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
     
-    // Simulate API call - in production, this would be a real API endpoint
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await apiService.login(email, password);
       
-      // Mock user data based on email
-      let mockUser: User;
-      if (email.includes('admin')) {
-        mockUser = {
-          id: '1',
-          email,
-          firstName: 'Admin',
-          lastName: 'User',
-          role: 'admin',
-          panNumber: 'ABCDE1234F',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString()
-        };
-      } else if (email.includes('accountant')) {
-        mockUser = {
-          id: '2',
-          email,
-          firstName: 'Rajesh',
-          lastName: 'Sharma',
-          role: 'accountant',
-          panNumber: 'FGHIJ5678K',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString()
-        };
-      } else {
-        mockUser = {
-          id: '3',
-          email,
-          firstName: 'Priya',
-          lastName: 'Patel',
-          role: 'user',
-          panNumber: 'KLMNO9012P',
-          aadharNumber: '1234-5678-9012',
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString()
-        };
+      if (response.success && response.data) {
+        const { user: userData, accessToken, refreshToken } = response.data;
+        
+        setUser(userData);
+        setToken(accessToken);
+        
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        toast.success('Login successful!');
       }
-
-      const mockToken = 'mock-jwt-token-' + Date.now();
-      
-      setUser(mockUser);
-      setToken(mockToken);
-      
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      toast.success('Login successful!');
-    } catch (error) {
-      toast.error('Login failed. Please try again.');
+    } catch (error: any) {
+      const errorMessage = error.message || 'Login failed. Please try again.';
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    toast.success('Logged out successfully');
+  const register = async (userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    panNumber?: string;
+    phone?: string;
+  }): Promise<void> => {
+    setIsLoading(true);
+    
+    try {
+      const response = await apiService.register(userData);
+      
+      if (response.success && response.data) {
+        const { user: newUser, accessToken, refreshToken } = response.data;
+        
+        setUser(newUser);
+        setToken(accessToken);
+        
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('user', JSON.stringify(newUser));
+        
+        toast.success('Registration successful!');
+      }
+    } catch (error: any) {
+      const errorMessage = error.message || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await apiService.logout(refreshToken);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      toast.success('Logged out successfully');
+    }
+  };
+
+  const refreshAuthToken = async (): Promise<boolean> => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) return false;
+
+      const response = await apiService.refreshToken(refreshToken);
+      
+      if (response.success && response.data) {
+        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        
+        setToken(accessToken);
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', newRefreshToken);
+        
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false;
+    }
   };
 
   const value: AuthContextType = {
     user,
     token,
     login,
+    register,
     logout,
-    isLoading
+    isLoading,
+    refreshAuthToken
   };
 
   return (
