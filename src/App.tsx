@@ -9,6 +9,10 @@ import Header from './components/Layout/Header';
 import UserDashboard from './pages/Dashboard/UserDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import DocumentManager from './pages/Documents/DocumentManager';
+import AdvancedDocumentManager from './pages/Documents/AdvancedDocumentManager';
+import ITRFormManager from './pages/ITR/ITRFormManager';
+import AdvancedTaxCalculator from './pages/Calculator/AdvancedTaxCalculator';
+import NotificationCenter from './components/Notifications/NotificationCenter';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -57,10 +61,11 @@ const DashboardRouter: React.FC = () => {
       
       {/* User Routes */}
       <Route path="/dashboard" element={<UserDashboard />} />
-      <Route path="/documents" element={<DocumentManager />} />
-      <Route path="/itr-forms" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">ITR Forms</h2><p className="text-gray-600">ITR forms management coming soon...</p></div>} />
+      <Route path="/documents" element={<AdvancedDocumentManager />} />
+      <Route path="/itr-forms" element={<ITRFormManager />} />
+      <Route path="/calculator" element={<AdvancedTaxCalculator />} />
+      <Route path="/notifications" element={<NotificationCenter />} />
       <Route path="/reports" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Reports</h2><p className="text-gray-600">Detailed reports coming soon...</p></div>} />
-      <Route path="/calculator" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Income Tax Calculator</h2><p className="text-gray-600">Advanced income tax calculator coming soon...</p></div>} />
       
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminDashboard />} />

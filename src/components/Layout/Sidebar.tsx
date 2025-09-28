@@ -10,7 +10,9 @@ import {
   TrendingUp,
   Calculator,
   HelpCircle,
-  LogOut
+  LogOut,
+  Bell,
+  Receipt
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,8 +23,9 @@ const Sidebar: React.FC = () => {
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/itr-forms', icon: FileText, label: 'ITR Forms' },
     { path: '/documents', icon: Upload, label: 'Documents' },
+    { path: '/calculator', icon: Calculator, label: 'Tax Calculator' },
+    { path: '/notifications', icon: Bell, label: 'Notifications' },
     { path: '/reports', icon: BarChart3, label: 'Reports' },
-    { path: '/calculator', icon: Calculator, label: 'Income Tax Calculator' },
   ];
 
   const adminNavItems = [

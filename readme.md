@@ -1,52 +1,65 @@
-# FinStack - Smart ITR Filing Platform
+# FinStack India - Advanced Tax Management System
 
-A comprehensive React TypeScript application for Indian Income Tax Return (ITR) filing and management. Built with modern web technologies to provide a seamless tax filing experience for individuals, CAs, and administrators.
+A comprehensive, industry-level tax management platform built with React, Node.js, and MongoDB. This system provides end-to-end tax management capabilities for individuals, accountants, and administrators.
 
 ## 🚀 Features
 
-### 👥 Multi-Role User System
-- **Individual Taxpayers**: Personal tax filing dashboard with document management
-- **CAs/Tax Consultants**: Client management and ITR review capabilities
-- **System Administrators**: Platform-wide analytics and user management
+### Core Functionality
+- **User Authentication & Authorization** - Secure JWT-based authentication with role-based access control
+- **Tax Form Management** - Complete ITR form creation, editing, and submission workflow
+- **Document Management** - Advanced file upload, processing, and verification system
+- **Tax Calculator** - Real-time tax calculation with multiple deduction options
+- **Notification System** - Comprehensive notification and reminder system
+- **Analytics Dashboard** - Real-time analytics and reporting for all user types
 
-### 📊 Dashboard Analytics
-- Real-time financial data visualization
-- Income trends and tax liability tracking
-- Platform growth metrics for administrators
-- Interactive charts using Recharts
+### User Roles
+- **Individual Users** - Create and manage their own tax returns
+- **Accountants** - Review and manage client tax forms
+- **Administrators** - System-wide management and analytics
 
-### 📁 Document Management
-- Drag-and-drop file upload interface
-- Support for multiple file types (PDF, images, documents)
-- Document categorization (Form 16, bank statements, etc.)
-- Status tracking (pending, verified, rejected)
-- Search and filter functionality
-
-### 🔐 Authentication & Security
-- Role-based access control
-- Protected routes with automatic redirection
-- Session management with localStorage
-- Mock authentication system (ready for backend integration)
-
-### 🎨 Modern UI/UX
-- Clean, professional interface with Tailwind CSS
-- Responsive design for all devices
-- Interactive components with hover effects
-- Toast notifications for user feedback
-- Loading states and smooth transitions
+### Advanced Features
+- **Security** - Industry-standard security with rate limiting, data sanitization, and CORS protection
+- **File Processing** - OCR and document verification capabilities
+- **Real-time Updates** - Live notifications and status updates
+- **Mobile Responsive** - Fully responsive design for all devices
+- **Scalable Architecture** - Microservices-ready with Docker containerization
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router DOM
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **Notifications**: React Hot Toast
-- **File Handling**: HTML5 File API
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for fast development and building
+- **Tailwind CSS** for styling
+- **React Router** for navigation
+- **React Hot Toast** for notifications
+- **Recharts** for data visualization
+- **Lucide React** for icons
 
-## 📦 Installation
+### Backend
+- **Node.js** with Express.js
+- **MongoDB** with Mongoose ODM
+- **JWT** for authentication
+- **Multer** for file uploads
+- **Bcrypt** for password hashing
+- **Helmet** for security headers
+- **Rate Limiting** for API protection
+
+### DevOps & Deployment
+- **Docker** containerization
+- **Docker Compose** for local development
+- **Nginx** reverse proxy
+- **MongoDB** database
+- **Redis** for caching
+- **Winston** for logging
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js 18+ 
+- MongoDB 7.0+
+- Docker (optional, for containerized deployment)
+
+### Local Development Setup
 
 1. **Clone the repository**
    ```bash
@@ -56,105 +69,184 @@ A comprehensive React TypeScript application for Indian Income Tax Return (ITR) 
 
 2. **Install dependencies**
    ```bash
+   # Install frontend dependencies
    npm install
+   
+   # Install backend dependencies
+   cd server
+   npm install
+   cd ..
    ```
 
-3. **Start the development server**
+3. **Environment Configuration**
    ```bash
+   # Copy environment files
+   cp server/env.example server/.env
+   
+   # Edit server/.env with your configuration
+   ```
+
+4. **Start MongoDB**
+   ```bash
+   # Using Docker
+   docker run -d -p 27017:27017 --name mongodb mongo:7.0
+   
+   # Or install MongoDB locally
+   ```
+
+5. **Start the development servers**
+   ```bash
+   # Terminal 1 - Backend
+   cd server
+   npm run dev
+   
+   # Terminal 2 - Frontend
    npm run dev
    ```
 
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
+6. **Access the application**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:5000
+   - API Health Check: http://localhost:5000/api/health
 
-## 🔧 Available Scripts
+### Docker Deployment
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-- `npm run preview` - Preview production build
+1. **Using Docker Compose**
+   ```bash
+   docker-compose up -d
+   ```
 
-## 👤 Demo Accounts
+2. **Access the application**
+   - Frontend: http://localhost:5173
+   - Backend: http://localhost:5000
+   - MongoDB: localhost:27017
 
-The application includes demo accounts for testing different user roles:
+## 🔧 Configuration
 
-### Individual Taxpayer
-- **Email**: `user@finstack.com`
-- **Password**: `password`
-- **Features**: Personal dashboard, document upload, ITR progress tracking
+### Environment Variables
 
-### System Administrator
-- **Email**: `admin@finstack.com`
-- **Password**: `password`
-- **Features**: Platform analytics, user management, system monitoring
+#### Backend (.env)
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/finstack-india
 
-### CA/Tax Consultant
-- **Email**: `accountant@finstack.com`
-- **Password**: `password`
-- **Features**: Client management, ITR review queue, reports
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key
+JWT_REFRESH_SECRET=your-super-secret-refresh-key
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
 
-## 📁 Project Structure
+# Server
+PORT=5000
+NODE_ENV=development
 
-```
-src/
-├── components/          # Reusable UI components
-│   ├── Dashboard/      # Dashboard-specific components
-│   │   ├── StatsCard.tsx
-│   │   └── FinancialChart.tsx
-│   ├── Layout/         # Layout components
-│   │   ├── Header.tsx
-│   │   └── Sidebar.tsx
-│   ├── UI/            # Basic UI components
-│   │   ├── Button.tsx
-│   │   └── Card.tsx
-│   └── FileUpload/     # Document upload components
-├── pages/              # Main application pages
-│   ├── Auth/          # Authentication pages
-│   │   └── Login.tsx
-│   ├── Dashboard/      # Dashboard pages
-│   │   ├── UserDashboard.tsx
-│   │   └── AdminDashboard.tsx
-│   └── Documents/      # Document management
-│       └── DocumentManager.tsx
-├── context/            # React Context for state management
-│   └── AuthContext.tsx
-├── types/              # TypeScript type definitions
-│   └── index.ts
-├── App.tsx            # Main application component
-├── main.tsx           # Application entry point
-└── index.css          # Global styles
+# Security
+BCRYPT_ROUNDS=12
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX=100
 ```
 
-## 🎯 Key Features Explained
+#### Frontend (.env)
+```env
+VITE_API_URL=http://localhost:5000/api
+```
 
-### Document Management
-- Upload multiple file types (PDF, JPG, PNG, DOC, DOCX)
-- Automatic file size validation (max 10MB)
-- Document categorization and status tracking
-- Search and filter capabilities
-- Preview, download, and delete operations
+## 📱 API Documentation
 
-### Dashboard Analytics
-- **User Dashboard**: Personal financial overview, ITR progress, tax tips
-- **Admin Dashboard**: Platform metrics, user distribution, system alerts
-- **Interactive Charts**: Income trends, tax liability, platform growth
+### Authentication Endpoints
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/refresh-token` - Refresh access token
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/profile` - Get user profile
 
-### Authentication System
-- Mock authentication with role-based access
-- Automatic session restoration
-- Protected routes with loading states
-- Logout functionality with session cleanup
+### Tax Management Endpoints
+- `POST /api/tax` - Create tax form
+- `GET /api/tax` - Get user's tax forms
+- `GET /api/tax/:id` - Get specific tax form
+- `PUT /api/tax/:id` - Update tax form
+- `POST /api/tax/:id/submit` - Submit for review
+- `GET /api/tax/:id/summary` - Get tax calculation summary
 
-## 🔮 Future Enhancements
+### Document Management Endpoints
+- `POST /api/documents/upload` - Upload document
+- `GET /api/documents` - Get user documents
+- `GET /api/documents/:id` - Get specific document
+- `GET /api/documents/:id/download` - Download document
+- `PUT /api/documents/:id` - Update document
+- `DELETE /api/documents/:id` - Delete document
 
-- [ ] Backend API integration
-- [ ] Real authentication system
-- [ ] Database connectivity
-- [ ] PDF generation for ITR forms
-- [ ] Email notifications
-- [ ] Mobile app development
-- [ ] Advanced tax calculator
-- [ ] E-filing integration with Income Tax Department
+### Notification Endpoints
+- `GET /api/notifications` - Get user notifications
+- `POST /api/notifications/:id/read` - Mark as read
+- `POST /api/notifications/read-all` - Mark all as read
+- `DELETE /api/notifications/:id` - Delete notification
+
+## 🧪 Testing
+
+### Running Tests
+```bash
+# Backend tests
+cd server
+npm test
+
+# Frontend tests
+npm test
+
+# E2E tests
+npm run test:e2e
+```
+
+### Test Coverage
+```bash
+# Generate coverage report
+npm run test:coverage
+```
+
+## 🚀 Deployment
+
+### Production Deployment
+
+1. **Build the application**
+   ```bash
+   npm run build
+   cd server && npm run build
+   ```
+
+2. **Deploy with Docker**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+3. **Environment setup**
+   - Configure production environment variables
+   - Set up SSL certificates
+   - Configure domain and DNS
+
+### Cloud Deployment Options
+
+- **AWS** - EC2, RDS, S3, CloudFront
+- **Google Cloud** - Compute Engine, Cloud SQL, Cloud Storage
+- **Azure** - App Service, Cosmos DB, Blob Storage
+- **DigitalOcean** - Droplets, Managed Databases
+
+## 🔒 Security Features
+
+- **Authentication** - JWT-based with refresh tokens
+- **Authorization** - Role-based access control
+- **Rate Limiting** - API request throttling
+- **Data Sanitization** - XSS and NoSQL injection protection
+- **CORS Protection** - Configured origins only
+- **File Upload Security** - Type and size validation
+- **Password Security** - Bcrypt hashing with salt rounds
+- **Security Headers** - Helmet.js protection
+
+## 📊 Monitoring & Logging
+
+- **Winston Logging** - Structured logging with levels
+- **Health Checks** - Application and database health monitoring
+- **Error Tracking** - Comprehensive error handling and reporting
+- **Performance Monitoring** - Request timing and metrics
 
 ## 🤝 Contributing
 
@@ -170,9 +262,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-For support and questions, please contact the development team or create an issue in the repository.
+For support and questions:
+- Create an issue in the repository
+- Contact: support@finstack.com
+- Documentation: [docs.finstack.com](https://docs.finstack.com)
+
+## 🗺️ Roadmap
+
+### Version 2.0 (Q2 2024)
+- [ ] AI-powered tax optimization suggestions
+- [ ] Advanced analytics and reporting
+- [ ] Mobile application (React Native)
+- [ ] Integration with banking APIs
+- [ ] Automated tax filing with government portals
+
+### Version 3.0 (Q4 2024)
+- [ ] Multi-tenant architecture
+- [ ] Advanced document processing with ML
+- [ ] Real-time collaboration features
+- [ ] Advanced security with 2FA
+- [ ] International tax support
 
 ---
 
-**Built with ❤️ for the Indian tax filing community**
-
+**Built with ❤️ for the Indian tax ecosystem**

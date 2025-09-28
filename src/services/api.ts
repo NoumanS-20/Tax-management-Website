@@ -140,6 +140,152 @@ class ApiService {
       throw error;
     }
   }
+
+  // Tax Form APIs
+  async createTaxForm(formData: any): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/tax`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(formData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async getTaxForms(params?: any): Promise<ApiResponse> {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    const response = await fetchWithTimeout(`${API_BASE_URL}/tax${queryString}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getTaxForm(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateTaxForm(id: string, formData: any): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(formData)
+    });
+    return this.handleResponse(response);
+  }
+
+  async submitForReview(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}/submit`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getTaxSummary(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}/summary`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  // Document APIs
+  async uploadDocument(formData: FormData): Promise<ApiResponse> {
+    const token = localStorage.getItem('accessToken');
+    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` })
+      },
+      body: formData
+    });
+    return this.handleResponse(response);
+  }
+
+  async getDocuments(params?: any): Promise<ApiResponse> {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    const response = await fetchWithTimeout(`${API_BASE_URL}/documents${queryString}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async getDocument(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async downloadDocument(id: string): Promise<Blob> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}/download`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to download document');
+    }
+    
+    return response.blob();
+  }
+
+  async updateDocument(id: string, data: any): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteDocument(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  // Notification APIs
+  async getNotifications(params?: any): Promise<ApiResponse> {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications${queryString}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async markNotificationAsRead(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/${id}/read`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async markAllNotificationsAsRead(): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/read-all`, {
+      method: 'POST',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteNotification(id: string): Promise<ApiResponse> {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export const apiService = new ApiService();

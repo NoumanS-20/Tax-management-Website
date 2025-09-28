@@ -5,20 +5,52 @@ const path = require('path');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+const taxRoutes = require('./routes/tax');
+const documentRoutes = require('./routes/documents');
+const notificationRoutes = require('./routes/notifications');
+
+const {
+  generalLimiter,
+  authLimiter,
+  uploadLimiter,
+  securityHeaders,
+  sanitizeData,
+  fileUploadSecurity,
+  requestLogger,
+  errorHandler,
+  corsOptions
+} = require('./middleware/security');
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  credentials: true
-}));
+// Security middleware
+app.use(securityHeaders);
+app.use(sanitizeData);
+app.use(requestLogger);
 
+// CORS
+app.use(cors(corsOptions));
+
+// Rate limiting
+app.use(generalLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/api/documents/upload', uploadLimiter);
+
+// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// File upload security
+app.use('/api/documents/upload', fileUploadSecurity);
+
+// Serve static files
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tax', taxRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -30,13 +62,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: 'Something went wrong!'
-  });
-});
+app.use(errorHandler);
 
 // 404 handler
 app.use('*', (req, res) => {
