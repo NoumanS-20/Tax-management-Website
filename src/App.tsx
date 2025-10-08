@@ -13,7 +13,6 @@ import AdvancedDocumentManager from './pages/Documents/AdvancedDocumentManager';
 import ITRFormManager from './pages/ITR/ITRFormManager';
 import AdvancedTaxCalculator from './pages/Calculator/AdvancedTaxCalculator';
 import NotificationCenter from './components/Notifications/NotificationCenter';
-
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
 

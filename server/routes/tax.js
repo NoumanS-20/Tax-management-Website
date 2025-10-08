@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const taxController = require('../controllers/taxController');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 // Tax form routes
 router.post('/', auth, taxController.createTaxForm);
