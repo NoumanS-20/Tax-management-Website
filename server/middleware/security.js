@@ -187,26 +187,32 @@ const errorHandler = (err, req, res, next) => {
 };
 
 // CORS configuration
-const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'https://yourdomain.com' // Add your production domain
-    ];
-    
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+const isProduction = process.env.NODE_ENV === 'production';
+const corsOptions = isProduction
+  ? {
+      origin: function (origin, callback) {
+        const allowedOrigins = [
+          'https://yourdomain.com'
+        ];
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      credentials: true,
+      optionsSuccessStatus: 200,
+      methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+      allowedHeaders: ['Content-Type','Authorization']
     }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200
-};
+  : {
+      origin: true,
+      credentials: true,
+      optionsSuccessStatus: 200,
+      methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+      allowedHeaders: ['Content-Type','Authorization']
+    };
 
 module.exports = {
   generalLimiter,

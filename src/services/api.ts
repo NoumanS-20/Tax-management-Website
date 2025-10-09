@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Add request timeout and better error handling
 const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout = 10000) => {
@@ -77,7 +77,7 @@ class ApiService {
       return this.handleResponse<LoginData>(response);
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Unable to connect to server. Please make sure the backend is running on http://localhost:5000');
+        throw new Error('Unable to connect to server. Please ensure the dev server and API proxy are running (npm run dev).');
       }
       throw error;
     }
@@ -94,7 +94,7 @@ class ApiService {
       return this.handleResponse<LoginData>(response);
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Unable to connect to server. Please make sure the backend is running on http://localhost:5000');
+        throw new Error('Unable to connect to server. Please ensure the dev server and API proxy are running (npm run dev).');
       }
       throw error;
     }
@@ -135,7 +135,7 @@ class ApiService {
       return this.handleResponse(response);
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Backend server is not running. Please start the server with: npm run server');
+        throw new Error('Backend server is not reachable. Start servers with: npm run dev:full');
       }
       throw error;
     }
