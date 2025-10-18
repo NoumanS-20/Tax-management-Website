@@ -48,7 +48,7 @@ const RectangularTable = () => {
 // Wooden chair with orange/brown seat
 const WoodenChair = () => {
   return (
-    <group position={[0, -1.35, -0.8]} rotation={[0, 0, 0]}>
+    <group position={[0, -1.05, -0.75]} rotation={[0, 0, 0]}>
       {/* Seat */}
       <RoundedBox args={[0.5, 0.08, 0.5]} radius={0.03} smoothness={4} position={[0, 0, 0]} castShadow>
         <meshStandardMaterial color="#d4834f" roughness={0.5} />
@@ -91,91 +91,105 @@ const WoodenChair = () => {
 // Person sitting at desk
 const Person = () => {
   return (
-    <group position={[0, -1.25, -0.65]}>
-      {/* Head */}
-      <mesh position={[0, 1.2, 0]} castShadow>
+    <group position={[0, -0.95, -0.65]} rotation={[0, 0, 0]}>
+      {/* Head - lowered more */}
+      <mesh position={[0, 0.9, 0]} castShadow>
         <sphereGeometry args={[0.22, 32, 32]} />
         <meshStandardMaterial color="#ffd4b8" />
       </mesh>
 
       {/* Hair */}
-      <mesh position={[0, 1.32, 0]} scale={[1.15, 0.8, 1.1]} castShadow>
+      <mesh position={[0, 1.02, 0]} scale={[1.15, 0.8, 1.1]} castShadow>
         <sphereGeometry args={[0.22, 32, 32, 0, Math.PI * 2, 0, Math.PI * 0.55]} />
         <meshStandardMaterial color="#8b5a3c" roughness={0.9} />
       </mesh>
 
       {/* Eyes */}
-      <mesh position={[-0.08, 1.22, 0.18]}>
+      <mesh position={[-0.08, 0.92, 0.18]}>
         <sphereGeometry args={[0.025, 16, 16]} />
         <meshStandardMaterial color="#333333" />
       </mesh>
-      <mesh position={[0.08, 1.22, 0.18]}>
+      <mesh position={[0.08, 0.92, 0.18]}>
         <sphereGeometry args={[0.025, 16, 16]} />
         <meshStandardMaterial color="#333333" />
       </mesh>
 
-      {/* Smile - curved upward */}
-      <mesh position={[0, 1.1, 0.2]} rotation={[-0.3, 0, 0]}>
-        <torusGeometry args={[0.08, 0.01, 8, 16, Math.PI]} />
-        <meshStandardMaterial color="#333333" />
-      </mesh>
+      {/* Smile - curved UPWARD smile (happy face) - closer to eyes */}
+      <group position={[0, 0.84, 0.2]} rotation={[0, 0, Math.PI]}>
+        <mesh>
+          <torusGeometry args={[0.06, 0.012, 12, 24, Math.PI]} />
+          <meshStandardMaterial color="#d4764f" />
+        </mesh>
+      </group>
 
-      {/* Neck */}
-      <mesh position={[0, 1.0, 0]} castShadow>
-        <cylinderGeometry args={[0.06, 0.08, 0.15, 16]} />
+      {/* Neck - properly positioned between head and torso */}
+      <mesh position={[0, 0.62, 0]} castShadow>
+        <cylinderGeometry args={[0.06, 0.08, 0.18, 16]} />
         <meshStandardMaterial color="#ffd4b8" />
       </mesh>
 
-      {/* Body/Torso - white shirt */}
-      <RoundedBox args={[0.5, 0.7, 0.3]} radius={0.08} smoothness={4} position={[0, 0.55, 0]} castShadow>
+      {/* Body/Torso - white shirt - lowered */}
+      <RoundedBox args={[0.5, 0.6, 0.3]} radius={0.08} smoothness={4} position={[0, 0.3, 0]} castShadow>
         <meshStandardMaterial color="#ffffff" roughness={0.6} />
       </RoundedBox>
 
-      {/* Left arm - reaching toward laptop */}
-      <group position={[-0.28, 0.6, 0.15]}>
-        <mesh rotation={[0.8, 0, 0.4]} castShadow>
-          <cylinderGeometry args={[0.06, 0.06, 0.4, 16]} />
+      {/* Left arm - reaching toward laptop - lowered and closer */}
+      <group position={[-0.28, 0.35, 0.2]}>
+        <mesh rotation={[1.0, 0, 0.3]} castShadow>
+          <cylinderGeometry args={[0.06, 0.06, 0.45, 16]} />
           <meshStandardMaterial color="#ffffff" roughness={0.6} />
         </mesh>
         {/* Left hand */}
-        <mesh position={[-0.05, 0, 0.25]} castShadow>
+        <mesh position={[-0.03, 0, 0.3]} castShadow>
           <sphereGeometry args={[0.07, 16, 16]} />
           <meshStandardMaterial color="#ffd4b8" />
         </mesh>
       </group>
 
-      {/* Right arm - reaching toward laptop */}
-      <group position={[0.28, 0.6, 0.15]}>
-        <mesh rotation={[0.8, 0, -0.4]} castShadow>
-          <cylinderGeometry args={[0.06, 0.06, 0.4, 16]} />
+      {/* Right arm - reaching toward laptop - lowered and closer */}
+      <group position={[0.28, 0.35, 0.2]}>
+        <mesh rotation={[1.0, 0, -0.3]} castShadow>
+          <cylinderGeometry args={[0.06, 0.06, 0.45, 16]} />
           <meshStandardMaterial color="#ffffff" roughness={0.6} />
         </mesh>
         {/* Right hand */}
-        <mesh position={[0.05, 0, 0.25]} castShadow>
+        <mesh position={[0.03, 0, 0.3]} castShadow>
           <sphereGeometry args={[0.07, 16, 16]} />
           <meshStandardMaterial color="#ffd4b8" />
         </mesh>
       </group>
 
-      {/* Pants - left leg bent */}
-      <mesh position={[-0.12, 0.15, -0.05]} rotation={[0.2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.09, 0.6, 16]} />
+      {/* Left thigh - horizontal connecting torso to lower leg */}
+      <mesh position={[-0.12, 0.0, 0.05]} rotation={[1.57, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.11, 0.1, 0.3, 16]} />
         <meshStandardMaterial color="#2c4c6f" roughness={0.7} />
       </mesh>
 
-      {/* Right leg bent */}
-      <mesh position={[0.12, 0.15, -0.05]} rotation={[0.2, 0, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.09, 0.6, 16]} />
+      {/* Right thigh - horizontal connecting torso to lower leg */}
+      <mesh position={[0.12, 0.0, 0.05]} rotation={[1.57, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.11, 0.1, 0.3, 16]} />
         <meshStandardMaterial color="#2c4c6f" roughness={0.7} />
       </mesh>
 
-      {/* Left foot on ground */}
-      <RoundedBox args={[0.15, 0.08, 0.22]} radius={0.03} smoothness={4} position={[-0.12, -0.25, 0.05]} castShadow>
+      {/* Pants - left leg going forward under table - closer to feet */}
+      <mesh position={[-0.12, -0.2, 0.25]} rotation={[0.4, 0.05, 0]} castShadow>
+        <cylinderGeometry args={[0.1, 0.09, 0.58, 16]} />
+        <meshStandardMaterial color="#2c4c6f" roughness={0.7} />
+      </mesh>
+
+      {/* Right leg going forward under table - closer to feet */}
+      <mesh position={[0.12, -0.2, 0.25]} rotation={[0.4, -0.05, 0]} castShadow>
+        <cylinderGeometry args={[0.1, 0.09, 0.58, 16]} />
+        <meshStandardMaterial color="#2c4c6f" roughness={0.7} />
+      </mesh>
+
+      {/* Left foot on ground - raised and closer to legs horizontally */}
+      <RoundedBox args={[0.15, 0.08, 0.24]} radius={0.03} smoothness={4} position={[-0.12, -0.50, 0.35]} rotation={[0, -0.3, 0]} castShadow>
         <meshStandardMaterial color="#4a4a4a" roughness={0.5} />
       </RoundedBox>
 
-      {/* Right foot on ground */}
-      <RoundedBox args={[0.15, 0.08, 0.22]} radius={0.03} smoothness={4} position={[0.12, -0.25, 0.05]} castShadow>
+      {/* Right foot on ground - raised and closer to legs horizontally */}
+      <RoundedBox args={[0.15, 0.08, 0.24]} radius={0.03} smoothness={4} position={[0.12, -0.50, 0.35]} rotation={[0, 0.3, 0]} castShadow>
         <meshStandardMaterial color="#4a4a4a" roughness={0.5} />
       </RoundedBox>
     </group>
@@ -230,27 +244,25 @@ const Laptop = () => {
 // Coffee mug
 const CoffeeMug = () => {
   return (
-    <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
-      <group position={[-0.8, -0.72, 0.15]}>
-        {/* Mug body */}
-        <mesh position={[0, 0.06, 0]} castShadow>
-          <cylinderGeometry args={[0.08, 0.06, 0.12, 16]} />
-          <meshStandardMaterial color="#ff9c4f" roughness={0.3} />
-        </mesh>
+    <group position={[-0.8, -0.72, 0.15]}>
+      {/* Mug body */}
+      <mesh position={[0, 0.06, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.06, 0.12, 16]} />
+        <meshStandardMaterial color="#ff9c4f" roughness={0.4} metalness={0.1} />
+      </mesh>
 
-        {/* Handle */}
-        <mesh position={[0.08, 0.06, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <torusGeometry args={[0.05, 0.015, 12, 16, Math.PI]} />
-          <meshStandardMaterial color="#ff9c4f" roughness={0.3} />
-        </mesh>
+      {/* Handle - mirrored and closer to mug */}
+      <mesh position={[0.06, 0.06, 0]} rotation={[0, 0, -Math.PI / 2]} castShadow>
+        <torusGeometry args={[0.045, 0.018, 12, 16, Math.PI]} />
+        <meshStandardMaterial color="#ff9c4f" roughness={0.4} metalness={0.1} />
+      </mesh>
 
-        {/* Coffee inside */}
-        <mesh position={[0, 0.11, 0]}>
-          <cylinderGeometry args={[0.075, 0.075, 0.02, 16]} />
-          <meshStandardMaterial color="#3d2817" roughness={0.2} />
-        </mesh>
-      </group>
-    </Float>
+      {/* Coffee inside */}
+      <mesh position={[0, 0.11, 0]}>
+        <cylinderGeometry args={[0.075, 0.075, 0.02, 16]} />
+        <meshStandardMaterial color="#3d2817" roughness={0.2} />
+      </mesh>
+    </group>
   );
 };
 
