@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useRef, useState } from 'react';
+import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Float, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -36,19 +36,57 @@ function Clipboard() {
         />
       </RoundedBox>
 
-      {/* TAX Text Representation (3D bars to suggest letters) */}
-      <mesh position={[-0.4, 1.1, 0.15]}>
-        <boxGeometry args={[0.15, 0.25, 0.05]} />
-        <meshStandardMaterial color="#f0f4f8" />
-      </mesh>
-      <mesh position={[0, 1.1, 0.15]}>
-        <boxGeometry args={[0.15, 0.25, 0.05]} />
-        <meshStandardMaterial color="#f0f4f8" />
-      </mesh>
-      <mesh position={[0.4, 1.1, 0.15]}>
-        <boxGeometry args={[0.15, 0.25, 0.05]} />
-        <meshStandardMaterial color="#f0f4f8" />
-      </mesh>
+      {/* TAX Text - Letter T */}
+      <group position={[-0.5, 1.1, 0.15]}>
+        {/* T - horizontal top */}
+        <mesh position={[0, 0.12, 0]}>
+          <boxGeometry args={[0.35, 0.08, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        {/* T - vertical stem */}
+        <mesh position={[0, -0.05, 0]}>
+          <boxGeometry args={[0.08, 0.26, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+      </group>
+
+      {/* TAX Text - Letter A */}
+      <group position={[0, 1.1, 0.15]}>
+        {/* A - left leg */}
+        <mesh position={[-0.08, -0.03, 0]} rotation={[0, 0, -0.25]}>
+          <boxGeometry args={[0.08, 0.36, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        {/* A - right leg */}
+        <mesh position={[0.08, -0.03, 0]} rotation={[0, 0, 0.25]}>
+          <boxGeometry args={[0.08, 0.36, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        {/* A - horizontal bar (middle) */}
+        <mesh position={[0, -0.02, 0]}>
+          <boxGeometry args={[0.22, 0.07, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        {/* A - top point/triangle */}
+        <mesh position={[0, 0.13, 0]} rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.08, 0.08, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+      </group>
+
+      {/* TAX Text - Letter X */}
+      <group position={[0.5, 1.1, 0.15]}>
+        {/* X - diagonal 1 */}
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.08, 0.38, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        {/* X - diagonal 2 */}
+        <mesh rotation={[0, 0, -Math.PI / 4]}>
+          <boxGeometry args={[0.08, 0.38, 0.04]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+      </group>
 
       {/* Clipboard Clip/Holder - Gold */}
       <group position={[0, 1.85, 0.08]}>
@@ -116,14 +154,14 @@ function MoneyStack() {
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.position.y = -1.5 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
+      groupRef.current.position.y = -1.3 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
       groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime) * 0.05;
     }
   });
 
   return (
     <Float speed={2} rotationIntensity={0.3} floatIntensity={0.5}>
-      <group ref={groupRef} position={[-2, -1.5, 0.5]} rotation={[0, -0.3, -0.1]}>
+      <group ref={groupRef} position={[-1.5, -1.3, 0.3]} rotation={[0, -0.3, -0.1]}>
         {/* Multiple bills stacked */}
         {[0, 0.05, 0.1, 0.15].map((zOffset, index) => (
           <group key={index} position={[0, 0, zOffset]}>
@@ -233,12 +271,62 @@ function CoinStack({ position }: { position: [number, number, number] }) {
   );
 }
 
+// Interactive Scene Component with Hover Effect
+function InteractiveScene() {
+  const [isHovered, setIsHovered] = useState(false);
+  const sceneRef = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (sceneRef.current) {
+      // Smooth scale transition
+      const targetScale = isHovered ? 1.15 : 1;
+      sceneRef.current.scale.lerp(
+        new THREE.Vector3(targetScale, targetScale, targetScale),
+        0.1
+      );
+    }
+  });
+
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    setIsHovered(true);
+    document.body.style.cursor = 'pointer';
+  };
+
+  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    setIsHovered(false);
+    document.body.style.cursor = 'default';
+  };
+
+  return (
+    <group
+      ref={sceneRef}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+    >
+      {/* Main Clipboard */}
+      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
+        <Clipboard />
+      </Float>
+
+      {/* Money Stack - Closer to clipboard */}
+      <MoneyStack />
+
+      {/* Coin Stacks - Closer together and to clipboard */}
+      <CoinStack position={[1.6, -1.1, 0.3]} />
+      <CoinStack position={[1.3, -1.5, 0.5]} />
+      <CoinStack position={[1.9, -1.4, 0.1]} />
+    </group>
+  );
+}
+
 // Main Scene Component
 export function TaxClipboard3DScene() {
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [0, 0, 8], fov: 45 }}
+        camera={{ position: [0, 0, 6.5], fov: 50 }}
         style={{ background: 'transparent' }}
         shadows
       >
@@ -266,18 +354,8 @@ export function TaxClipboard3DScene() {
           castShadow
         />
 
-        {/* Main Clipboard */}
-        <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
-          <Clipboard />
-        </Float>
-
-        {/* Money Stack */}
-        <MoneyStack />
-
-        {/* Coin Stacks */}
-        <CoinStack position={[2.2, -1.2, 0.5]} />
-        <CoinStack position={[1.8, -1.8, 0.8]} />
-        <CoinStack position={[2.6, -1.6, 0.3]} />
+        {/* Interactive Scene Group */}
+        <InteractiveScene />
 
         {/* Ground reflection plane (invisible but receives shadows) */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.5, 0]} receiveShadow>
@@ -288,13 +366,48 @@ export function TaxClipboard3DScene() {
         <OrbitControls
           enableZoom={false}
           enablePan={false}
-          autoRotate
-          autoRotateSpeed={1.5}
-          maxPolarAngle={Math.PI / 2}
-          minPolarAngle={Math.PI / 2.5}
+          autoRotate={false}
+          enableRotate={true}
+          maxPolarAngle={Math.PI / 2.2}
+          minPolarAngle={Math.PI / 2.8}
         />
       </Canvas>
     </div>
+  );
+}
+
+// Compact Interactive Scene
+function CompactInteractiveScene() {
+  const [isHovered, setIsHovered] = useState(false);
+  const sceneRef = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    if (sceneRef.current) {
+      const targetScale = isHovered ? 1.15 : 1;
+      sceneRef.current.scale.lerp(
+        new THREE.Vector3(targetScale, targetScale, targetScale),
+        0.1
+      );
+    }
+  });
+
+  return (
+    <group
+      ref={sceneRef}
+      onPointerOver={() => {
+        setIsHovered(true);
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        setIsHovered(false);
+        document.body.style.cursor = 'default';
+      }}
+    >
+      <Float speed={2} rotationIntensity={0.3} floatIntensity={0.4}>
+        <Clipboard />
+      </Float>
+      <CoinStack position={[1.8, -1.5, 0]} />
+    </group>
   );
 }
 
@@ -311,17 +424,13 @@ export function TaxClipboard3DCompact() {
         <directionalLight position={[3, 3, 3]} intensity={1} castShadow />
         <pointLight position={[-3, 2, 2]} intensity={0.5} color="#6fa8dc" />
 
-        <Float speed={2} rotationIntensity={0.3} floatIntensity={0.4}>
-          <Clipboard />
-        </Float>
-
-        <CoinStack position={[1.8, -1.5, 0]} />
+        <CompactInteractiveScene />
 
         <OrbitControls
           enableZoom={false}
           enablePan={false}
-          autoRotate
-          autoRotateSpeed={2}
+          autoRotate={false}
+          enableRotate={true}
         />
       </Canvas>
     </div>

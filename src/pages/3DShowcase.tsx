@@ -1,6 +1,7 @@
 import React from 'react';
 import { TaxIllustration3D, LoginIllustration3D, RegisterIllustration3D } from '../components/UI/TaxIllustration3D';
-import { TaxClipboard3DScene, TaxClipboard3DCompact } from '../components/UI/TaxClipboard3D';
+import { TaxClipboard3DScene } from '../components/UI/TaxClipboard3D';
+import { WorkingPerson3D } from '../components/UI/WorkingPerson3D';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
@@ -64,14 +65,18 @@ const ThreeDShowcase: React.FC = () => {
             </p>
           </div>
 
-          {/* Registration Illustration */}
+          {/* NEW: Working Person - Registration */}
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-4">Registration</h2>
-            <div className="w-full h-96 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-xl overflow-hidden">
-              <RegisterIllustration3D />
+            <h2 className="text-2xl font-bold text-white mb-2">👨‍💼 Working Professional</h2>
+            <p className="text-teal-300 text-sm mb-4">⭐ New for Registration!</p>
+            <div className="w-full h-96 bg-gradient-to-br from-teal-100 via-cyan-50 to-sky-100 rounded-xl overflow-hidden">
+              <WorkingPerson3D />
             </div>
             <p className="text-gray-300 mt-4 text-sm">
-              Features: User profile card, checkmark, documents, modern design
+              ✓ Person at desk with computer and glasses<br/>
+              ✓ Working clock with moving hands<br/>
+              ✓ Pen holder with colorful pens<br/>
+              ✓ Coffee cup with steam effect
             </p>
           </div>
         </div>

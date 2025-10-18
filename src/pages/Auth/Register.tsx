@@ -5,7 +5,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaGithub, FaFacebook } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { TaxClipboard3DScene } from '../../components/UI/TaxClipboard3D';
+import PersonAtDesk3D from '../../components/UI/PersonAtDesk3D';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -358,16 +358,16 @@ const Register: React.FC = () => {
           </div>
 
           {/* Right Side - Illustration */}
-          <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-sky-100 via-blue-50 to-indigo-100 p-12 relative overflow-hidden">
-            {/* 3D Tax Clipboard Scene */}
+          <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-sky-200 via-cyan-100 to-blue-100 p-12 relative overflow-hidden">
+            {/* 3D Person at Desk Scene */}
             <div className="relative z-10 w-full h-full">
-              <TaxClipboard3DScene />
+              <PersonAtDesk3D />
             </div>
 
             {/* Decorative Elements */}
-            <div className="absolute top-10 right-10 w-32 h-32 bg-blue-200/40 rounded-full blur-3xl animate-blob"></div>
-            <div className="absolute bottom-10 left-10 w-40 h-40 bg-cyan-200/30 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-            <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-purple-200/20 rounded-full blur-2xl animate-blob animation-delay-4000"></div>
+            <div className="absolute top-10 right-10 w-32 h-32 bg-sky-300/30 rounded-full blur-3xl animate-blob"></div>
+            <div className="absolute bottom-10 left-10 w-40 h-40 bg-cyan-300/25 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+            <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-blue-300/20 rounded-full blur-2xl animate-blob animation-delay-4000"></div>
           </div>
         </div>
       </div>
