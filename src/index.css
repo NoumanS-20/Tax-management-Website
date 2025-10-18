@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer utilities {
-  /* Blob animation for background */
+  /* Enhanced Blob animation for background */
   @keyframes blob {
     0% {
       transform: translate(0px, 0px) scale(1);
@@ -45,6 +45,36 @@
     animation: pulse-slow 3s ease-in-out infinite;
   }
 
+  /* Shimmer effect for inputs */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 3s infinite;
+  }
+
+  /* Glow pulse effect */
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+    }
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
   /* Slide up animation */
   @keyframes slide-up {
     from {
@@ -72,6 +102,59 @@
   }
 
   .animate-fade-in {
-    animation: fade-in 0.8s ease-in;
+    animation: fade-in 0.8s ease-out;
+  }
+
+  /* Fade in up animation */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out;
+  }
+
+  /* Gradient shift animation */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 10s ease infinite;
+  }
+
+  /* Float animation for particles */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) translateX(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.3;
+    }
+    50% {
+      transform: translateY(-100px) translateX(50px);
+      opacity: 0.6;
+    }
+    90% {
+      opacity: 0.3;
+    }
+  }
+
+  .animate-float {
+    animation: float linear infinite;
   }
 }

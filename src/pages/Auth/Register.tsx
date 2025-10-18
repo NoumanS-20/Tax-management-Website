@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Calculator, User, Mail, Phone, CreditCard, Sparkles, Shield, Check, X } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
+import { FaGithub, FaFacebook } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
-import Button from '../../components/UI/Button';
 import toast from 'react-hot-toast';
+import { TaxClipboard3DScene } from '../../components/UI/TaxClipboard3D';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,13 +19,8 @@ const Register: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const { register, user, isLoading } = useAuth();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     // Calculate password strength
@@ -116,286 +113,262 @@ const Register: React.FC = () => {
     return 'Strong';
   };
 
+  const handleSocialLogin = (provider: string) => {
+    toast(`${provider} registration coming soon!`, { icon: 'ℹ️' });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-800 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-cyan-300 via-purple-300 to-pink-300 animate-gradient-shift">
+      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-500 hover:shadow-purple-300/50 hover:shadow-3xl">
+        <div className="grid md:grid-cols-2 gap-0">
+          {/* Left Side - Form */}
+          <div className="p-12 flex flex-col justify-center max-h-screen overflow-y-auto">
+            {/* Logo */}
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-pink-400">Logo Here</h1>
+            </div>
 
-      <div className={`max-w-2xl w-full space-y-6 relative z-10 transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        {/* Header Section */}
-        <div className="text-center">
-          <div className="mx-auto h-20 w-20 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 rounded-3xl flex items-center justify-center mb-6 shadow-2xl transform hover:scale-110 transition-transform duration-300 animate-pulse-slow">
-            <Calculator className="h-10 w-10 text-white" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-4xl font-bold text-white animate-slide-up">Join FinStack India</h2>
-            <p className="mt-3 text-teal-200 flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Start your hassle-free ITR filing journey today
-              <Sparkles className="w-4 h-4" />
-            </p>
-          </div>
-        </div>
+            {/* Welcome Text */}
+            <div className="mb-6 animate-fade-in-up">
+              <p className="text-sm text-gray-600 mb-2 animate-pulse-slow">Join us today !!!</p>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-600 bg-clip-text text-transparent">Sign Up</h2>
+            </div>
 
-        {/* Benefits Banner */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300 hover:bg-white/20">
-            <Shield className="w-6 h-6 text-emerald-300 mx-auto mb-1" />
-            <p className="text-xs text-white font-medium">Bank-Level Security</p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300 hover:bg-white/20">
-            <Check className="w-6 h-6 text-teal-300 mx-auto mb-1" />
-            <p className="text-xs text-white font-medium">Easy Setup</p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center transform hover:scale-105 transition-all duration-300 hover:bg-white/20">
-            <Sparkles className="w-6 h-6 text-cyan-300 mx-auto mb-1" />
-            <p className="text-xs text-white font-medium">100% Free</p>
-          </div>
-        </div>
-
-        {/* Registration Form */}
-        <div className="bg-white/95 backdrop-blur-xl py-8 px-8 shadow-2xl rounded-3xl border border-white/20 transform hover:shadow-teal-500/20 transition-all duration-500">
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="group">
-                <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  First Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Name Fields */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    First Name
+                  </label>
                   <input
-                    id="firstName"
-                    name="firstName"
                     type="text"
-                    required
+                    name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80"
-                    placeholder="First name"
+                    placeholder="John"
+                    className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all duration-300 hover:shadow-md"
+                    required
                   />
                 </div>
-              </div>
-
-              <div className="group">
-                <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Last Name *
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name
+                  </label>
                   <input
-                    id="lastName"
-                    name="lastName"
                     type="text"
-                    required
+                    name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80"
-                    placeholder="Last name"
+                    placeholder="Doe"
+                    className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all duration-300 hover:shadow-md"
+                    required
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="group">
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              {/* Email Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
                 <input
-                  id="email"
-                  name="email"
                   type="email"
-                  required
+                  name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80"
-                  placeholder="Enter your email"
+                  placeholder="signup@gmail.com"
+                  className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
+                  required
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="group">
-                <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mobile Number
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              {/* Phone & PAN */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone (Optional)
+                  </label>
                   <input
-                    id="phone"
-                    name="phone"
                     type="tel"
+                    name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80"
-                    placeholder="10-digit number"
+                    placeholder="10-digit"
+                    className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all"
                   />
                 </div>
-              </div>
-
-              <div className="group">
-                <label htmlFor="panNumber" className="block text-sm font-semibold text-gray-700 mb-2">
-                  PAN Number
-                </label>
-                <div className="relative">
-                  <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PAN (Optional)
+                  </label>
                   <input
-                    id="panNumber"
-                    name="panNumber"
                     type="text"
+                    name="panNumber"
                     value={formData.panNumber}
                     onChange={handleChange}
-                    className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80 uppercase"
                     placeholder="ABCDE1234F"
+                    className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all uppercase"
                     maxLength={10}
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="group">
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Password *
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-5 py-3.5 pr-14 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80"
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-teal-600 transition-colors duration-200"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-              
-              {/* Password Strength Indicator */}
-              {formData.password && (
-                <div className="mt-2 space-y-2">
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <div
-                        key={level}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                          level <= passwordStrength ? getPasswordStrengthColor() : 'bg-gray-200'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  {getPasswordStrengthText() && (
-                    <p className={`text-xs font-medium ${
-                      passwordStrength <= 1 ? 'text-red-600' : passwordStrength <= 3 ? 'text-yellow-600' : 'text-green-600'
-                    }`}>
-                      Password strength: {getPasswordStrengthText()}
-                    </p>
-                  )}
+              {/* Password Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••••••"
+                    className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 hover:text-pink-500 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-              )}
-            </div>
-
-            <div className="group">
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                Confirm Password *
-              </label>
-              <div className="relative">
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-5 py-3.5 pr-14 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all duration-300 group-hover:border-teal-300 bg-white/80"
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-teal-600 transition-colors duration-200"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
+                {/* Password Strength */}
+                {formData.password && (
+                  <div className="mt-2">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1 flex-1 rounded-full transition-all ${
+                            level <= passwordStrength ? getPasswordStrengthColor() : 'bg-gray-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {getPasswordStrengthText() && (
+                      <p className={`text-xs mt-1 ${
+                        passwordStrength <= 1 ? 'text-red-600' : passwordStrength <= 3 ? 'text-yellow-600' : 'text-green-600'
+                      }`}>
+                        {getPasswordStrengthText()}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
-              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                  <X className="w-3 h-3" />
-                  Passwords do not match
-                </p>
-              )}
-              {formData.confirmPassword && formData.password === formData.confirmPassword && (
-                <p className="mt-1 text-xs text-green-600 flex items-center gap-1">
-                  <Check className="w-3 h-3" />
-                  Passwords match
-                </p>
-              )}
-            </div>
 
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
+              {/* Confirm Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="••••••••••••"
+                    className="w-full px-4 py-2.5 bg-blue-50 border-0 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 hover:text-pink-500 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {formData.confirmPassword && (
+                  <p className={`text-xs mt-1 ${
+                    formData.password === formData.confirmPassword ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {formData.password === formData.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
+                  </p>
+                )}
+              </div>
+
+              {/* Terms Checkbox */}
+              <div className="flex items-start">
                 <input
                   id="terms"
-                  name="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded transition-all"
+                  className="mt-1 h-4 w-4 text-pink-500 border-gray-300 rounded focus:ring-pink-400"
                 />
+                <label htmlFor="terms" className="ml-2 text-xs text-gray-600">
+                  I agree to the{' '}
+                  <a href="#" className="text-pink-400 hover:text-pink-500 underline">Terms</a>
+                  {' '}and{' '}
+                  <a href="#" className="text-pink-400 hover:text-pink-500 underline">Privacy Policy</a>
+                </label>
               </div>
-              <label htmlFor="terms" className="ml-3 block text-sm text-gray-700">
-                I agree to the{' '}
-                <a href="#" className="text-teal-600 hover:text-teal-500 font-medium underline">
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="#" className="text-teal-600 hover:text-teal-500 font-medium underline">
-                  Privacy Policy
-                </a>
-              </label>
+
+              {/* Sign Up Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-pink-400 to-pink-500 text-white font-semibold py-2.5 px-6 rounded-full hover:from-pink-500 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {isLoading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
+                <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform duration-300" />
+              </button>
+            </form>
+
+            {/* Social Sign Up */}
+            <div className="mt-6">
+              <p className="text-center text-sm text-gray-400 mb-3">or sign up with</p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => handleSocialLogin('Google')}
+                  className="flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-200 rounded-full hover:border-pink-300 hover:shadow-lg transition-all duration-300 hover:scale-110 transform"
+                >
+                  <FcGoogle size={22} />
+                </button>
+                <button
+                  onClick={() => handleSocialLogin('GitHub')}
+                  className="flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-200 rounded-full hover:border-pink-300 hover:shadow-lg transition-all duration-300 hover:scale-110 transform"
+                >
+                  <FaGithub size={22} className="text-gray-800" />
+                </button>
+                <button
+                  onClick={() => handleSocialLogin('Facebook')}
+                  className="flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-200 rounded-full hover:border-pink-300 hover:shadow-lg transition-all duration-300 hover:scale-110 transform"
+                >
+                  <FaFacebook size={22} className="text-blue-600" />
+                </button>
+              </div>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 transform hover:scale-[1.02] transition-all duration-300 shadow-lg hover:shadow-xl"
-              size="lg"
-              loading={isLoading}
-            >
-              <span className="flex items-center justify-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Create My Account
-                <Sparkles className="w-4 h-4" />
-              </span>
-            </Button>
-          </form>
-        </div>
+            {/* Sign In Link */}
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link to="/login" className="text-pink-400 hover:text-pink-500 font-semibold transition-colors">
+                  Log in
+                </Link>
+              </p>
+            </div>
+          </div>
 
-        {/* Footer */}
-        <div className="text-center space-y-4">
-          <p className="text-sm text-white/90 bg-white/10 backdrop-blur-md rounded-full px-6 py-3 inline-block">
-            Already have an account?{' '}
-            <Link to="/login" className="font-bold text-cyan-300 hover:text-cyan-200 underline transition-colors">
-              Sign in here →
-            </Link>
-          </p>
+          {/* Right Side - Illustration */}
+          <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-sky-100 via-blue-50 to-indigo-100 p-12 relative overflow-hidden">
+            {/* 3D Tax Clipboard Scene */}
+            <div className="relative z-10 w-full h-full">
+              <TaxClipboard3DScene />
+            </div>
+
+            {/* Decorative Elements */}
+            <div className="absolute top-10 right-10 w-32 h-32 bg-blue-200/40 rounded-full blur-3xl animate-blob"></div>
+            <div className="absolute bottom-10 left-10 w-40 h-40 bg-cyan-200/30 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+            <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-purple-200/20 rounded-full blur-2xl animate-blob animation-delay-4000"></div>
+          </div>
         </div>
       </div>
     </div>
