@@ -26,9 +26,10 @@ const generalLimiter = createRateLimit(
 );
 
 // Auth rate limiter (stricter for auth endpoints)
+// Relaxed for development - increase to 20 attempts per 15 minutes
 const authLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
-  5, // limit each IP to 5 requests per windowMs
+  20, // limit each IP to 20 requests per windowMs (relaxed for development)
   'Too many authentication attempts, please try again later.'
 );
 

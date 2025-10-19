@@ -73,13 +73,30 @@ const createTaxForm = async (req, res) => {
       });
     }
 
+    // Auto-populate personal info from user profile if not provided
+    const userPersonalInfo = {
+      panNumber: personalInfo?.panNumber || req.user.panNumber,
+      aadharNumber: personalInfo?.aadharNumber || req.user.aadharNumber,
+      dateOfBirth: personalInfo?.dateOfBirth || req.user.dateOfBirth,
+      address: personalInfo?.address || req.user.address,
+      bankDetails: personalInfo?.bankDetails || {}
+    };
+
+    // Validate PAN number is available
+    if (!userPersonalInfo.panNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'PAN number is required. Please update your profile with PAN number before creating ITR form.'
+      });
+    }
+
     // Create new tax form
     const taxForm = new TaxForm({
       userId: req.user._id,
       assessmentYear,
       financialYear,
       formType,
-      personalInfo,
+      personalInfo: userPersonalInfo,
       income,
       deductions,
       exemptions

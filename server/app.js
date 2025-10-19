@@ -56,7 +56,7 @@ app.use('/api/notifications', notificationRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ 
     success: true, 
-    message: 'FinStack India API is running',
+    message: 'SwiftTax API is running',
     timestamp: new Date().toISOString()
   });
 });
@@ -73,7 +73,7 @@ app.use('*', (req, res) => {
 });
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finstack-india')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/swifttax')
   .then(() => {
     console.log('✅ Connected to MongoDB');
   })
@@ -86,7 +86,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/finstack-
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 FinStack India API server running on http://localhost:${PORT}`);
+  console.log(`🚀 SwiftTax API server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
 

@@ -1,4 +1,4 @@
-# FinStack India - Advanced Tax Management System
+# SwiftTax - Advanced Tax Management System
 
 A comprehensive, industry-level tax management platform built with React, Node.js, and MongoDB. This system provides end-to-end tax management capabilities for individuals, accountants, and administrators.
 
@@ -128,7 +128,7 @@ A comprehensive, industry-level tax management platform built with React, Node.j
 #### Backend (.env)
 ```env
 # Database
-MONGODB_URI=mongodb://localhost:27017/finstack-india
+MONGODB_URI=mongodb://localhost:27017/swifttax
 
 # JWT Configuration
 JWT_SECRET=your-super-secret-jwt-key
@@ -264,8 +264,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support and questions:
 - Create an issue in the repository
-- Contact: support@finstack.com
-- Documentation: [docs.finstack.com](https://docs.finstack.com)
+- Contact: support@swifttax.in
+- Documentation: [docs.swifttax.in](https://docs.swifttax.in)
 
 ## 🗺️ Roadmap
 

@@ -14,7 +14,7 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({ 
     success: true, 
-    message: 'FinStack India API is running',
+    message: 'SwiftTax API is running',
     timestamp: new Date().toISOString()
   });
 });
@@ -34,7 +34,7 @@ describe('Health Check Endpoint (No Database)', () => {
       .expect(200);
 
     expect(response.body.success).toBe(true);
-    expect(response.body.message).toContain('FinStack India API is running');
+    expect(response.body.message).toContain('SwiftTax API is running');
     expect(response.body.timestamp).toBeDefined();
   });
 

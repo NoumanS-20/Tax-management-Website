@@ -1,7 +1,7 @@
 {
-  "name": "finstack-server",
+  "name": "swifttax-server",
   "version": "1.0.0",
-  "description": "FinStack India Backend API",
+  "description": "SwiftTax Backend API",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

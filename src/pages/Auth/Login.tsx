@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Calculator } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/UI/Button';
 import toast from 'react-hot-toast';
+import TaxClipboard3D from '../../components/UI/TaxClipboard3D';
+import Logo from '../../components/UI/Logo';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -31,18 +33,20 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-            <Calculator className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome to FinStack</h2>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-cyan-300 via-purple-300 to-pink-300 flex items-center justify-center p-4">
+      <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div className="grid md:grid-cols-2 gap-0">
+          {/* Left Side - Form */}
+          <div className="p-12 flex flex-col justify-center">
+            <div className="text-center mb-8">
+              <div className="mx-auto mb-6 flex items-center justify-center">
+                <Logo size="lg" />
+              </div>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-600 bg-clip-text text-transparent">Welcome Back</h2>
+              <p className="mt-2 text-gray-600">Sign in to your account</p>
+            </div>
 
-        <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email address
@@ -55,7 +59,7 @@ const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
+                className="w-full px-4 py-3 bg-blue-50 border-0 rounded-xl text-gray-900 focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all duration-200"
                 placeholder="Enter your email"
               />
             </div>
@@ -73,7 +77,7 @@ const Login: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
+                  className="w-full px-4 py-3 pr-12 bg-blue-50 border-0 rounded-xl text-gray-900 focus:ring-2 focus:ring-pink-300 focus:bg-white outline-none transition-all duration-200"
                   placeholder="Enter your password"
                 />
                 <button
@@ -112,23 +116,45 @@ const Login: React.FC = () => {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600"
               size="lg"
               loading={isLoading}
             >
               Sign in
             </Button>
           </form>
+
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-medium text-pink-400 hover:text-pink-500">
+                Create account
+              </Link>
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">
+              <Link to="/terms" className="hover:text-gray-700 underline">
+                Terms of Service
+              </Link>
+              <span>•</span>
+              <Link to="/privacy" className="hover:text-gray-700 underline">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
         </div>
 
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Create account
-            </Link>
-          </p>
+        {/* Right Side - 3D Illustration */}
+        <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-cyan-200 via-purple-200 to-pink-200 p-12 relative overflow-hidden">
+          <div className="relative z-10 w-full h-full">
+            <TaxClipboard3D />
+          </div>
+
+          {/* Decorative Elements */}
+          <div className="absolute top-10 right-10 w-32 h-32 bg-purple-300/30 rounded-full blur-3xl animate-blob"></div>
+          <div className="absolute bottom-10 left-10 w-40 h-40 bg-pink-300/25 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-cyan-300/20 rounded-full blur-2xl animate-blob animation-delay-4000"></div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, Calendar, DollarSign, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, FileText, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { apiService } from '../../services/api';
@@ -7,6 +8,7 @@ import { TaxForm } from '../../types';
 import toast from 'react-hot-toast';
 
 const ITRFormManager: React.FC = () => {
+  const navigate = useNavigate();
   const [taxForms, setTaxForms] = useState<TaxForm[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -27,6 +29,18 @@ const ITRFormManager: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetails = (formId: string) => {
+    toast.success('Opening form details...');
+    // Navigate to form details page
+    navigate(`/itr-forms/${formId}`);
+  };
+
+  const handleContinue = (formId: string) => {
+    toast.success('Continue editing form...');
+    // Navigate to form edit page
+    navigate(`/itr-forms/${formId}/edit`);
   };
 
   const getStatusColor = (status: string) => {
@@ -184,6 +198,7 @@ const ITRFormManager: React.FC = () => {
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
+                      onClick={() => handleViewDetails(form.id)}
                     >
                       View Details
                     </Button>
@@ -191,6 +206,7 @@ const ITRFormManager: React.FC = () => {
                       <Button 
                         size="sm" 
                         className="flex-1"
+                        onClick={() => handleContinue(form.id)}
                       >
                         Continue
                       </Button>

@@ -18,7 +18,7 @@ const UserDashboard: React.FC = () => {
     { type: 'upload', message: 'Form 16 uploaded successfully', time: '2 hours ago' },
     { type: 'review', message: 'ITR-1 reviewed by CA', time: '1 day ago' },
     { type: 'calculation', message: 'Tax calculation updated', time: '3 days ago' },
-    { type: 'reminder', message: 'ITR filing deadline: July 31st', time: '1 week ago' },
+    { type: 'reminder', message: 'ITR filing deadline: November 30th, 2025', time: '1 week ago' },
   ];
 
   const taxTips = [
@@ -54,7 +54,7 @@ const UserDashboard: React.FC = () => {
         />
         <StatsCard
           title="Days to ITR Deadline"
-          value="92"
+          value="42"
           icon={<Calendar className="w-6 h-6" />}
           color="yellow"
         />

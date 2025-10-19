@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, Calculator, User, Mail, Phone, CreditCard } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone, CreditCard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/UI/Button';
 import toast from 'react-hot-toast';
 import PersonAtDesk3D from '../../components/UI/PersonAtDesk3D';
+import Logo from '../../components/UI/Logo';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -94,10 +95,10 @@ const Register: React.FC = () => {
           {/* Left Side - Form */}
           <div className="p-8 max-h-screen overflow-y-auto">
             <div className="text-center mb-6">
-              <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                <Calculator className="h-8 w-8 text-white" />
+              <div className="mx-auto mb-6 flex items-center justify-center">
+                <Logo size="lg" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">Join FinStack India</h2>
+              <h2 className="text-3xl font-bold text-gray-900">Join SwiftTax</h2>
               <p className="mt-2 text-gray-600">Create your account to start filing ITR</p>
             </div>
 
@@ -267,13 +268,13 @@ const Register: React.FC = () => {
               />
               <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                 I agree to the{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-500">
+                <Link to="/terms" className="text-blue-600 hover:text-blue-500 underline" target="_blank">
                   Terms of Service
-                </a>{' '}
+                </Link>{' '}
                 and{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-500">
+                <Link to="/privacy" className="text-blue-600 hover:text-blue-500 underline" target="_blank">
                   Privacy Policy
-                </a>
+                </Link>
               </label>
             </div>
 
@@ -295,6 +296,15 @@ const Register: React.FC = () => {
               Sign in here
             </Link>
           </p>
+          <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">
+            <Link to="/terms" className="hover:text-gray-700 underline">
+              Terms of Service
+            </Link>
+            <span>•</span>
+            <Link to="/privacy" className="hover:text-gray-700 underline">
+              Privacy Policy
+            </Link>
+          </div>
         </div>
       </div>
 

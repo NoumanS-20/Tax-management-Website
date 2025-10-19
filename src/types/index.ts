@@ -16,6 +16,7 @@ export interface TaxForm {
   userId: string;
   assessmentYear: string; // e.g., "2024-25"
   financialYear: string; // e.g., "2023-24"
+  formType: 'ITR-1' | 'ITR-2' | 'ITR-3' | 'ITR-4';
   status: 'draft' | 'in-review' | 'approved' | 'filed' | 'rejected';
   income: {
     salary: number;
@@ -36,6 +37,20 @@ export interface TaxForm {
     hra: number;
     lta: number;
     other: number;
+  };
+  taxCalculation: {
+    grossTotalIncome: number;
+    totalDeductions: number;
+    totalExemptions: number;
+    taxableIncome: number;
+    incomeTax: number;
+    surcharge: number;
+    cess: number;
+    totalTax: number;
+    tds: number;
+    advanceTax: number;
+    selfAssessmentTax: number;
+    refund: number;
   };
   documents: Document[];
   createdAt: string;

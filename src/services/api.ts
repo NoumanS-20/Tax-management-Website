@@ -45,6 +45,9 @@ interface RegisterData {
 class ApiService {
   private getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem('accessToken');
+    if (!token) {
+      console.warn('No access token found in localStorage');
+    }
     return {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` })
@@ -54,13 +57,15 @@ class ApiService {
   private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
     let data;
     try {
-      data = await response.json();
+      const text = await response.text();
+      data = text ? JSON.parse(text) : {};
     } catch (error) {
-      throw new Error('Invalid response from server');
+      console.error('Failed to parse server response:', error);
+      throw new Error(`Invalid response from server (Status: ${response.status}). Please check server logs.`);
     }
     
     if (!response.ok) {
-      throw new Error(data.message || 'An error occurred');
+      throw new Error(data.message || `Server error (Status: ${response.status})`);
     }
     
     return data;

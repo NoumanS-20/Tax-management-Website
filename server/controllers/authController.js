@@ -28,11 +28,13 @@ const generateTokens = (userId) => {
 // Register new user
 const register = async (req, res) => {
   try {
+    console.log('Registration attempt:', { email: req.body.email, firstName: req.body.firstName });
     const { email, password, firstName, lastName, panNumber, phone } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('User already exists:', email);
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
@@ -61,6 +63,7 @@ const register = async (req, res) => {
     });
 
     await user.save();
+    console.log('User saved successfully:', user.email);
 
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user._id);
@@ -69,6 +72,7 @@ const register = async (req, res) => {
     user.refreshTokens.push({ token: refreshToken });
     await user.save();
 
+    console.log('Registration successful for:', user.email);
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -80,6 +84,12 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: error.message || 'Registration failed'

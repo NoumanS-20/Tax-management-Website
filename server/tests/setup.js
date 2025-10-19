@@ -11,7 +11,7 @@ beforeAll(async () => {
   // Check if already connected
   if (mongoose.connection.readyState === 0) {
     // Use test database
-    const mongoUri = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/finstack-test';
+    const mongoUri = process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/swifttax-test';
     
     try {
       await mongoose.connect(mongoUri, {

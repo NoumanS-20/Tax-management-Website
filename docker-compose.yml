@@ -4,31 +4,31 @@ services:
   # MongoDB Database
   mongodb:
     image: mongo:7.0
-    container_name: finstack-mongodb
+    container_name: swifttax-mongodb
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: finstack-india
+      MONGO_INITDB_DATABASE: swifttax
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - ./server/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
-      - finstack-network
+      - swifttax-network
 
   # Backend API Server
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: finstack-backend
+    container_name: swifttax-backend
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 5000
-      MONGODB_URI: mongodb://admin:password123@mongodb:27017/finstack-india?authSource=admin
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/swifttax?authSource=admin
       JWT_SECRET: your-super-secret-jwt-key-here-make-it-long-and-random
       JWT_REFRESH_SECRET: your-super-secret-refresh-jwt-key-here-make-it-long-and-random
       JWT_EXPIRES_IN: 15m
@@ -42,14 +42,14 @@ services:
     depends_on:
       - mongodb
     networks:
-      - finstack-network
+      - swifttax-network
 
   # Frontend React App
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: finstack-frontend
+    container_name: swifttax-frontend
     restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:5000/api
@@ -58,12 +58,12 @@ services:
     depends_on:
       - backend
     networks:
-      - finstack-network
+      - swifttax-network
 
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: finstack-nginx
+    container_name: swifttax-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -75,19 +75,19 @@ services:
       - frontend
       - backend
     networks:
-      - finstack-network
+      - swifttax-network
 
   # Redis for caching and sessions
   redis:
     image: redis:7-alpine
-    container_name: finstack-redis
+    container_name: swifttax-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - finstack-network
+      - swifttax-network
 
 volumes:
   mongodb_data:
@@ -96,5 +96,5 @@ volumes:
     driver: local
 
 networks:
-  finstack-network:
+  swifttax-network:
     driver: bridge

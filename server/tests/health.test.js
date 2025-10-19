@@ -8,7 +8,7 @@ describe('Health Check Endpoint', () => {
       .expect(200);
 
     expect(response.body.success).toBe(true);
-    expect(response.body.message).toContain('FinStack India API is running');
+    expect(response.body.message).toContain('SwiftTax API is running');
     expect(response.body.timestamp).toBeDefined();
   });
 

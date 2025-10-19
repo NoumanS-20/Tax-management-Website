@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 describe('Authentication Endpoints', () => {
   beforeAll(async () => {
     // Connect to test database
-    await mongoose.connect(process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/finstack-test');
+    await mongoose.connect(process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/swifttax-test');
   });
 
   afterAll(async () => {

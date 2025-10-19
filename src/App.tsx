@@ -8,11 +8,12 @@ import Sidebar from './components/Layout/Sidebar';
 import Header from './components/Layout/Header';
 import UserDashboard from './pages/Dashboard/UserDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
-import DocumentManager from './pages/Documents/DocumentManager';
 import AdvancedDocumentManager from './pages/Documents/AdvancedDocumentManager';
 import ITRFormManager from './pages/ITR/ITRFormManager';
 import AdvancedTaxCalculator from './pages/Calculator/AdvancedTaxCalculator';
 import NotificationCenter from './components/Notifications/NotificationCenter';
+import TermsOfService from './pages/Legal/TermsOfService';
+import PrivacyPolicy from './pages/Legal/PrivacyPolicy';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
 
@@ -62,6 +63,8 @@ const DashboardRouter: React.FC = () => {
       <Route path="/dashboard" element={<UserDashboard />} />
       <Route path="/documents" element={<AdvancedDocumentManager />} />
       <Route path="/itr-forms" element={<ITRFormManager />} />
+      <Route path="/itr-forms/:id" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">ITR Form Details</h2><p className="text-gray-600">Form details view coming soon...</p></div>} />
+      <Route path="/itr-forms/:id/edit" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Edit ITR Form</h2><p className="text-gray-600">Form editing interface coming soon...</p></div>} />
       <Route path="/calculator" element={<AdvancedTaxCalculator />} />
       <Route path="/notifications" element={<NotificationCenter />} />
       <Route path="/reports" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Reports</h2><p className="text-gray-600">Detailed reports coming soon...</p></div>} />
@@ -100,6 +103,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route
               path="/*"
               element={
