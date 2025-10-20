@@ -135,6 +135,7 @@ const createTaxForm = async (req, res) => {
 const getTaxForms = async (req, res) => {
   try {
     const { assessmentYear, status, page = 1, limit = 10 } = req.query;
+    console.log('getTaxForms called by user:', req.user._id);
     
     const query = { userId: req.user._id };
     if (assessmentYear) query.assessmentYear = assessmentYear;
@@ -146,12 +147,21 @@ const getTaxForms = async (req, res) => {
       .skip((page - 1) * limit)
       .populate('documents');
 
+    console.log('Found', taxForms.length, 'tax forms');
+
     const total = await TaxForm.countDocuments(query);
+
+    // Transform _id to id for frontend compatibility
+    const transformedForms = taxForms.map(form => {
+      const formData = form.toObject();
+      formData.id = formData._id.toString();
+      return formData;
+    });
 
     res.json({
       success: true,
       data: {
-        taxForms,
+        taxForms: transformedForms,
         pagination: {
           current: parseInt(page),
           pages: Math.ceil(total / limit),
@@ -161,9 +171,10 @@ const getTaxForms = async (req, res) => {
     });
   } catch (error) {
     console.error('Get tax forms error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch tax forms'
+      message: error.message || 'Failed to fetch tax forms'
     });
   }
 };
@@ -172,11 +183,15 @@ const getTaxForms = async (req, res) => {
 const getTaxForm = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('getTaxForm called with ID:', id);
+    console.log('User ID:', req.user._id);
 
     const taxForm = await TaxForm.findOne({
       _id: id,
       userId: req.user._id
     }).populate('documents');
+
+    console.log('Tax form found:', taxForm ? 'Yes' : 'No');
 
     if (!taxForm) {
       return res.status(404).json({
@@ -185,15 +200,22 @@ const getTaxForm = async (req, res) => {
       });
     }
 
+    // Transform _id to id for frontend compatibility
+    const formData = taxForm.toObject();
+    formData.id = formData._id.toString();
+    
+    console.log('Sending form data with id:', formData.id);
+    
     res.json({
       success: true,
-      data: { taxForm }
+      data: formData
     });
   } catch (error) {
     console.error('Get tax form error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch tax form'
+      message: error.message || 'Failed to fetch tax form'
     });
   }
 };

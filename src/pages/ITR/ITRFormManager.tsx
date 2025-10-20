@@ -34,13 +34,13 @@ const ITRFormManager: React.FC = () => {
   const handleViewDetails = (formId: string) => {
     toast.success('Opening form details...');
     // Navigate to form details page
-    navigate(`/itr-forms/${formId}`);
+    navigate(`/dashboard/itr-forms/${formId}`);
   };
 
   const handleContinue = (formId: string) => {
     toast.success('Continue editing form...');
     // Navigate to form edit page
-    navigate(`/itr-forms/${formId}/edit`);
+    navigate(`/dashboard/itr-forms/${formId}/edit`);
   };
 
   const getStatusColor = (status: string) => {

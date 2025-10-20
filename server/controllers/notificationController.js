@@ -22,10 +22,16 @@ const getNotifications = async (req, res) => {
       isRead: false
     });
 
+    // Transform _id to id for frontend compatibility
+    const transformedNotifications = notifications.map(notif => ({
+      ...notif.toObject(),
+      id: notif._id.toString()
+    }));
+
     res.json({
       success: true,
       data: {
-        notifications,
+        notifications: transformedNotifications,
         unreadCount,
         pagination: {
           current: parseInt(page),

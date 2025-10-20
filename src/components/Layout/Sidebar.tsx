@@ -21,25 +21,25 @@ const Sidebar: React.FC = () => {
 
   const userNavItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/itr-forms', icon: FileText, label: 'ITR Forms' },
-    { path: '/documents', icon: Upload, label: 'Documents' },
-    { path: '/calculator', icon: Calculator, label: 'Tax Calculator' },
-    { path: '/notifications', icon: Bell, label: 'Notifications' },
-    { path: '/reports', icon: BarChart3, label: 'Reports' },
+    { path: '/dashboard/itr-forms', icon: FileText, label: 'ITR Forms' },
+    { path: '/dashboard/documents', icon: Upload, label: 'Documents' },
+    { path: '/dashboard/calculator', icon: Calculator, label: 'Tax Calculator' },
+    { path: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
+    { path: '/dashboard/reports', icon: BarChart3, label: 'Reports' },
   ];
 
   const adminNavItems = [
-    { path: '/admin', icon: LayoutDashboard, label: 'Admin Dashboard' },
-    { path: '/admin/users', icon: Users, label: 'User Management' },
-    { path: '/admin/analytics', icon: TrendingUp, label: 'Analytics' },
-    { path: '/admin/settings', icon: Settings, label: 'Settings' },
+    { path: '/dashboard/admin', icon: LayoutDashboard, label: 'Admin Dashboard' },
+    { path: '/dashboard/admin/users', icon: Users, label: 'User Management' },
+    { path: '/dashboard/admin/analytics', icon: TrendingUp, label: 'Analytics' },
+    { path: '/dashboard/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
   const accountantNavItems = [
-    { path: '/accountant', icon: LayoutDashboard, label: 'Accountant Dashboard' },
-    { path: '/accountant/clients', icon: Users, label: 'Client Management' },
-    { path: '/accountant/reviews', icon: FileText, label: 'ITR Review Queue' },
-    { path: '/accountant/reports', icon: BarChart3, label: 'Client Reports' },
+    { path: '/dashboard/accountant', icon: LayoutDashboard, label: 'Accountant Dashboard' },
+    { path: '/dashboard/accountant/clients', icon: Users, label: 'Client Management' },
+    { path: '/dashboard/accountant/reviews', icon: FileText, label: 'ITR Review Queue' },
+    { path: '/dashboard/accountant/reports', icon: BarChart3, label: 'Client Reports' },
   ];
 
   const getNavItems = () => {

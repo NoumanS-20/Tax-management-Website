@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import HomePage from './pages/Home/HomePage';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Sidebar from './components/Layout/Sidebar';
@@ -10,6 +11,8 @@ import UserDashboard from './pages/Dashboard/UserDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import AdvancedDocumentManager from './pages/Documents/AdvancedDocumentManager';
 import ITRFormManager from './pages/ITR/ITRFormManager';
+import ITRFormDetails from './pages/ITR/ITRFormDetails';
+import ITRFormEdit from './pages/ITR/ITRFormEdit';
 import AdvancedTaxCalculator from './pages/Calculator/AdvancedTaxCalculator';
 import NotificationCenter from './components/Notifications/NotificationCenter';
 import TermsOfService from './pages/Legal/TermsOfService';
@@ -49,22 +52,19 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 const DashboardRouter: React.FC = () => {
   const { user } = useAuth();
 
-  const getDashboardRoute = () => {
-    if (user?.role === 'admin') return '/admin';
-    if (user?.role === 'accountant') return '/accountant';
-    return '/dashboard';
-  };
-
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={getDashboardRoute()} replace />} />
-      
       {/* User Routes */}
-      <Route path="/dashboard" element={<UserDashboard />} />
+      <Route 
+        path="/" 
+        element={
+          user?.role === 'admin' ? <Navigate to="/dashboard/admin" replace /> : <UserDashboard />
+        } 
+      />
       <Route path="/documents" element={<AdvancedDocumentManager />} />
       <Route path="/itr-forms" element={<ITRFormManager />} />
-      <Route path="/itr-forms/:id" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">ITR Form Details</h2><p className="text-gray-600">Form details view coming soon...</p></div>} />
-      <Route path="/itr-forms/:id/edit" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Edit ITR Form</h2><p className="text-gray-600">Form editing interface coming soon...</p></div>} />
+      <Route path="/itr-forms/:id" element={<ITRFormDetails />} />
+      <Route path="/itr-forms/:id/edit" element={<ITRFormEdit />} />
       <Route path="/calculator" element={<AdvancedTaxCalculator />} />
       <Route path="/notifications" element={<NotificationCenter />} />
       <Route path="/reports" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Reports</h2><p className="text-gray-600">Detailed reports coming soon...</p></div>} />
@@ -101,12 +101,13 @@ function App() {
           />
           
           <Routes>
+            <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route
-              path="/*"
+              path="/dashboard/*"
               element={
                 <ProtectedRoute>
                   <DashboardLayout>
