@@ -9,7 +9,7 @@ const documentSchema = new mongoose.Schema({
   taxFormId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'TaxForm',
-    required: true
+    required: false // Made optional - documents can be uploaded before linking to tax form
   },
   name: {
     type: String,

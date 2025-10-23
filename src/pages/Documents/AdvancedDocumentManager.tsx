@@ -313,10 +313,27 @@ const UploadDocumentModal: React.FC<{
     category: '',
     assessmentYear: '2024-25',
     financialYear: '2023-24',
+    taxFormId: '', // Optional - link to specific tax form
     isRequired: false
   });
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [taxForms, setTaxForms] = useState<any[]>([]);
+
+  // Fetch available tax forms
+  useEffect(() => {
+    const fetchTaxForms = async () => {
+      try {
+        const response = await apiService.getTaxForms();
+        if (response.success) {
+          setTaxForms(response.data.taxForms);
+        }
+      } catch (error) {
+        console.error('Error fetching tax forms:', error);
+      }
+    };
+    fetchTaxForms();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -339,7 +356,11 @@ const UploadDocumentModal: React.FC<{
     try {
       const uploadData = new FormData();
       uploadData.append('file', file);
+      
+      // Only include non-empty values
       Object.entries(formData).forEach(([key, value]) => {
+        // Skip empty taxFormId
+        if (key === 'taxFormId' && !value) return;
         uploadData.append(key, value.toString());
       });
 
@@ -436,6 +457,28 @@ const UploadDocumentModal: React.FC<{
               <option value="identity">Identity</option>
               <option value="other">Other</option>
             </select>
+          </div>
+
+          {/* Link to Tax Form (Optional) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Link to Tax Form (Optional)
+            </label>
+            <select
+              value={formData.taxFormId}
+              onChange={(e) => setFormData({ ...formData, taxFormId: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">None - Upload without linking</option>
+              {taxForms.map((form) => (
+                <option key={form.id} value={form.id}>
+                  {form.formType} - FY {form.financialYear}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              You can link this document to a tax form later
+            </p>
           </div>
 
           {/* Assessment Year */}
