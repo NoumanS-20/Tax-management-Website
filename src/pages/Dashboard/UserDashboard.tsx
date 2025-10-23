@@ -140,6 +140,28 @@ const UserDashboard: React.FC = () => {
     });
   };
 
+  // Download ITR Guide
+  const handleDownloadGuide = async () => {
+    try {
+      toast.loading('Downloading ITR Guide...');
+      const blob = await apiService.downloadGuide();
+      const url = window.URL.createObjectURL(blob);
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.download = 'Income-Tax-Guide-for-India.pdf';
+      window.document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      window.document.body.removeChild(link);
+      toast.dismiss();
+      toast.success('ITR Guide downloaded successfully!');
+    } catch (error: any) {
+      toast.dismiss();
+      console.error('Download guide error:', error);
+      toast.error(error.message || 'Failed to download ITR guide');
+    }
+  };
+
   const recentActivity = [
     { type: 'upload', message: 'Form 16 uploaded successfully', time: '2 hours ago' },
     { type: 'review', message: 'ITR-1 reviewed by CA', time: '1 day ago' },
@@ -296,7 +318,12 @@ const UserDashboard: React.FC = () => {
               ))}
             </div>
             <div className="mt-4">
-              <Button variant="outline" className="w-full" icon={<Download className="w-4 h-4" />}>
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                icon={<Download className="w-4 h-4" />}
+                onClick={handleDownloadGuide}
+              >
                 Download ITR Guide
               </Button>
             </div>

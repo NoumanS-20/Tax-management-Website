@@ -54,19 +54,46 @@ const AdvancedDocumentManager: React.FC = () => {
     }
   };
 
-  const handleDownload = async (document: Document) => {
+  const handleDownload = async (doc: Document) => {
     try {
-      const blob = await apiService.downloadDocument(document.id);
+      console.log('Downloading document:', doc);
+      console.log('Document ID:', doc.id);
+      const blob = await apiService.downloadDocument(doc.id);
+      console.log('Blob received:', blob);
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = document.originalName;
-      document.body.appendChild(a);
-      a.click();
+      const link = window.document.createElement('a');
+      link.href = url;
+      link.download = doc.originalName || doc.name;
+      window.document.body.appendChild(link);
+      link.click();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      window.document.body.removeChild(link);
+      toast.success('Document downloaded successfully');
     } catch (error: any) {
+      console.error('Download error:', error);
       toast.error(error.message || 'Failed to download document');
+    }
+  };
+
+  const handleView = async (doc: Document) => {
+    try {
+      console.log('Viewing document:', doc);
+      console.log('Document ID:', doc.id);
+      const blob = await apiService.downloadDocument(doc.id);
+      console.log('Blob received:', blob);
+      const url = window.URL.createObjectURL(blob);
+      // Open in new tab
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow) {
+        toast.error('Please allow pop-ups to view documents');
+      }
+      // Clean up after a delay to allow the browser to load the file
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+    } catch (error: any) {
+      console.error('View error:', error);
+      toast.error(error.message || 'Failed to view document');
     }
   };
 
@@ -204,8 +231,8 @@ const AdvancedDocumentManager: React.FC = () => {
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDocuments.map((document) => (
-            <Card key={document.id} className="hover:shadow-lg transition-shadow">
+          {filteredDocuments.map((doc) => (
+            <Card key={doc.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-3">
@@ -214,16 +241,16 @@ const AdvancedDocumentManager: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 truncate">
-                        {document.name}
+                        {doc.name}
                       </h3>
                       <p className="text-sm text-gray-600 capitalize">
-                        {document.type.replace(/([A-Z])/g, ' $1').trim()}
+                        {doc.type.replace(/([A-Z])/g, ' $1').trim()}
                       </p>
                     </div>
                   </div>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(document.status)}`}>
-                    {getStatusIcon(document.status)}
-                    <span className="ml-1 capitalize">{document.status}</span>
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(doc.status)}`}>
+                    {getStatusIcon(doc.status)}
+                    <span className="ml-1 capitalize">{doc.status}</span>
                   </span>
                 </div>
               </CardHeader>
@@ -233,23 +260,23 @@ const AdvancedDocumentManager: React.FC = () => {
                   <div className="text-sm text-gray-600 space-y-1">
                     <div className="flex justify-between">
                       <span>Size:</span>
-                      <span>{formatFileSize(document.size)}</span>
+                      <span>{formatFileSize(doc.size)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Uploaded:</span>
-                      <span>{new Date(document.uploadedAt).toLocaleDateString()}</span>
+                      <span>{new Date(doc.uploadedAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Assessment Year:</span>
-                      <span>{document.assessmentYear}</span>
+                      <span>{doc.assessmentYear}</span>
                     </div>
                   </div>
 
                   {/* Verification Notes */}
-                  {document.verificationNotes && (
+                  {doc.verificationNotes && (
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-sm text-gray-700">
-                        <strong>Notes:</strong> {document.verificationNotes}
+                        <strong>Notes:</strong> {doc.verificationNotes}
                       </p>
                     </div>
                   )}
@@ -259,7 +286,7 @@ const AdvancedDocumentManager: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDownload(document)}
+                      onClick={() => handleDownload(doc)}
                       icon={<Download className="w-4 h-4" />}
                     >
                       Download
@@ -267,6 +294,7 @@ const AdvancedDocumentManager: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => handleView(doc)}
                       icon={<Eye className="w-4 h-4" />}
                     >
                       View
@@ -274,7 +302,7 @@ const AdvancedDocumentManager: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(document.id)}
+                      onClick={() => handleDelete(doc.id)}
                       icon={<Trash2 className="w-4 h-4" />}
                       className="text-red-600 hover:text-red-700"
                     >

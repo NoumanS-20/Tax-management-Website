@@ -61,11 +61,17 @@ export interface TaxForm {
 export interface Document {
   id: string;
   name: string;
-  type: 'form16' | 'form16a' | 'salarySlip' | 'bankStatement' | 'investmentProof' | 'rentReceipt' | 'other';
+  originalName: string;
+  type: 'form16' | 'form16a' | 'salarySlip' | 'bankStatement' | 'investmentProof' | 'rentReceipt' | 'panCard' | 'aadharCard' | 'passport' | 'other';
+  category: 'income' | 'deduction' | 'exemption' | 'identity' | 'other';
   size: number;
   uploadedAt: string;
   status: 'pending' | 'verified' | 'rejected';
   url?: string;
+  assessmentYear?: string;
+  financialYear?: string;
+  taxFormId?: string;
+  verificationNotes?: string;
 }
 
 export interface FinancialSummary {

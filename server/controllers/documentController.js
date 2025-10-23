@@ -177,10 +177,16 @@ const getDocuments = async (req, res) => {
 
     const total = await Document.countDocuments(query);
 
+    // Transform documents to include id field
+    const transformedDocuments = documents.map(doc => ({
+      ...doc.toObject(),
+      id: doc._id.toString()
+    }));
+
     res.json({
       success: true,
       data: {
-        documents,
+        documents: transformedDocuments,
         pagination: {
           current: parseInt(page),
           pages: Math.ceil(total / limit),
@@ -231,6 +237,8 @@ const getDocument = async (req, res) => {
 const downloadDocument = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('Download request for document ID:', id);
+    console.log('User ID:', req.user._id);
 
     const document = await Document.findOne({
       _id: id,
@@ -238,22 +246,29 @@ const downloadDocument = async (req, res) => {
     });
 
     if (!document) {
+      console.log('Document not found for ID:', id);
       return res.status(404).json({
         success: false,
         message: 'Document not found'
       });
     }
 
+    console.log('Document found:', document.originalName);
+    console.log('File path:', document.filePath);
+
     // Check if file exists
     try {
       await fs.access(document.filePath);
+      console.log('File exists on server');
     } catch (error) {
+      console.error('File not found on server:', error);
       return res.status(404).json({
         success: false,
         message: 'File not found on server'
       });
     }
 
+    console.log('Sending file for download');
     res.download(document.filePath, document.originalName);
   } catch (error) {
     console.error('Download document error:', error);

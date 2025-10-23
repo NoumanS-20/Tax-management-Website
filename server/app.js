@@ -45,12 +45,27 @@ app.use('/api/documents/upload', fileUploadSecurity);
 
 // Serve static files
 app.use('/uploads', express.static('uploads'));
+app.use('/public', express.static('public'));
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tax', taxRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+// ITR Guide download endpoint
+app.get('/api/download-guide', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'ITR-Guide.pdf');
+  res.download(filePath, 'Income-Tax-Guide-for-India.pdf', (err) => {
+    if (err) {
+      console.error('Error downloading guide:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to download ITR guide'
+      });
+    }
+  });
+});
 
 // Health check
 app.get('/api/health', (req, res) => {

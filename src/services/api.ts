@@ -229,16 +229,23 @@ class ApiService {
   }
 
   async downloadDocument(id: string): Promise<Blob> {
+    console.log('API: Downloading document with ID:', id);
     const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}/download`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
     
+    console.log('API: Response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error('Failed to download document');
+      const error = await response.json().catch(() => ({ message: 'Failed to download document' }));
+      console.error('API: Download failed:', error);
+      throw new Error(error.message || 'Failed to download document');
     }
     
-    return response.blob();
+    const blob = await response.blob();
+    console.log('API: Blob size:', blob.size, 'Type:', blob.type);
+    return blob;
   }
 
   async updateDocument(id: string, data: any): Promise<ApiResponse> {
@@ -290,6 +297,28 @@ class ApiService {
       headers: this.getAuthHeaders()
     });
     return this.handleResponse(response);
+  }
+
+  async downloadGuide(): Promise<Blob> {
+    console.log('API: Downloading ITR Guide');
+    const response = await fetchWithTimeout(`${API_BASE_URL}/download-guide`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      }
+    });
+    
+    console.log('API: Response status:', response.status);
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to download guide' }));
+      console.error('API: Download failed:', error);
+      throw new Error(error.message || 'Failed to download guide');
+    }
+    
+    const blob = await response.blob();
+    console.log('API: Blob size:', blob.size, 'Type:', blob.type);
+    return blob;
   }
 }
 
