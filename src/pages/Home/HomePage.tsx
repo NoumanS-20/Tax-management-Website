@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, Shield, Clock, TrendingUp, CheckCircle, 
@@ -8,18 +8,133 @@ import {
 import Button from '../../components/UI/Button';
 import Logo from '../../components/UI/Logo';
 import TaxClipboard3D from '../../components/UI/TaxClipboard3D';
+import toast from 'react-hot-toast';
+import { apiService } from '../../services/api';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  
+  // Contact form state
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Update active section based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['home', 'about', 'features', 'mission', 'contact'];
+      const scrollPosition = window.scrollY + 100; // Offset for navbar height
+
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(sectionId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial position
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
-    setActiveSection(sectionId);
     setMobileMenuOpen(false);
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleContactFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setContactForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateContactForm = () => {
+    if (!contactForm.name.trim()) {
+      toast.error('Please enter your full name');
+      return false;
+    }
+    
+    if (!contactForm.email.trim()) {
+      toast.error('Please enter your email address');
+      return false;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(contactForm.email)) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+    
+    if (!contactForm.subject.trim()) {
+      toast.error('Please enter a subject');
+      return false;
+    }
+    
+    if (!contactForm.message.trim()) {
+      toast.error('Please enter your message');
+      return false;
+    }
+    
+    if (contactForm.message.trim().length < 10) {
+      toast.error('Message should be at least 10 characters long');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleContactFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateContactForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Call the actual API endpoint
+      const response = await apiService.createContact(contactForm);
+      
+      // Success
+      toast.success(response.message || 'Message sent successfully! We\'ll get back to you soon.', {
+        duration: 5000,
+        icon: '✅'
+      });
+      
+      // Reset form
+      setContactForm({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+      
+    } catch (error: any) {
+      console.error('Contact form error:', error);
+      toast.error(error.message || 'Failed to send message. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -354,7 +469,7 @@ const HomePage: React.FC = () => {
             <Button 
               size="lg"
               onClick={() => navigate('/register')}
-              className="bg-white text-blue-600 hover:bg-gray-100"
+              className="bg-blue-900 text-black hover:bg-blue-800 font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               Get Started for Free
               <ChevronRight className="w-5 h-5 ml-2" />
@@ -518,15 +633,19 @@ const HomePage: React.FC = () => {
             {/* Contact Form */}
             <div className="bg-white p-8 rounded-2xl shadow-sm">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h3>
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleContactFormSubmit}>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
                     type="text"
+                    name="name"
+                    value={contactForm.name}
+                    onChange={handleContactFormChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="John Doe"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -536,8 +655,12 @@ const HomePage: React.FC = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    value={contactForm.email}
+                    onChange={handleContactFormChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="john@example.com"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -547,8 +670,12 @@ const HomePage: React.FC = () => {
                   </label>
                   <input
                     type="tel"
+                    name="phone"
+                    value={contactForm.phone}
+                    onChange={handleContactFormChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="+91 98765 43210"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -558,8 +685,12 @@ const HomePage: React.FC = () => {
                   </label>
                   <input
                     type="text"
+                    name="subject"
+                    value={contactForm.subject}
+                    onChange={handleContactFormChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="How can we help you?"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -568,15 +699,33 @@ const HomePage: React.FC = () => {
                     Message *
                   </label>
                   <textarea
+                    name="message"
+                    value={contactForm.message}
+                    onChange={handleContactFormChange}
                     rows={5}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Tell us more about your query..."
+                    disabled={isSubmitting}
                   ></textarea>
                 </div>
 
-                <Button className="w-full" size="lg">
-                  Send Message
-                  <ChevronRight className="w-5 h-5 ml-2" />
+                <Button 
+                  type="submit"
+                  className="w-full" 
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <ChevronRight className="w-5 h-5 ml-2" />
+                    </>
+                  )}
                 </Button>
               </form>
             </div>

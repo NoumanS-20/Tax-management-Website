@@ -12,7 +12,8 @@ import {
   HelpCircle,
   LogOut,
   Bell,
-  Receipt
+  Receipt,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,6 +25,7 @@ const Sidebar: React.FC = () => {
     { path: '/dashboard/itr-forms', icon: FileText, label: 'ITR Forms' },
     { path: '/dashboard/documents', icon: Upload, label: 'Documents' },
     { path: '/dashboard/calculator', icon: Calculator, label: 'Tax Calculator' },
+    { path: '/dashboard/guide', icon: BookOpen, label: 'ITR Filing Guide' },
     { path: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
     { path: '/dashboard/reports', icon: BarChart3, label: 'Reports' },
   ];

@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const taxRoutes = require('./routes/tax');
 const documentRoutes = require('./routes/documents');
 const notificationRoutes = require('./routes/notifications');
+const contactRoutes = require('./routes/contact');
 
 const {
   generalLimiter,
@@ -52,6 +53,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tax', taxRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/contact', contactRoutes);
 
 // ITR Guide download endpoint
 app.get('/api/download-guide', (req, res) => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Navigate, Link } from 'react-router-dom';
-import { Eye, EyeOff, User, Mail, Phone, CreditCard } from 'lucide-react';
+import { Navigate, Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, User, Mail, Phone, CreditCard, Home } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/UI/Button';
 import toast from 'react-hot-toast';
@@ -20,6 +20,7 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register, user, isLoading } = useAuth();
+  const navigate = useNavigate();
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -90,6 +91,15 @@ const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-200 via-cyan-100 to-blue-100 flex items-center justify-center p-4">
+      {/* Home Button */}
+      <button
+        onClick={() => navigate('/')}
+        className="fixed top-6 left-6 z-50 bg-white hover:bg-gray-100 text-gray-700 p-3 rounded-full shadow-lg transition-all hover:shadow-xl"
+        aria-label="Go to home"
+      >
+        <Home className="w-6 h-6" />
+      </button>
+
       <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
         <div className="grid md:grid-cols-2 gap-0">
           {/* Left Side - Form */}

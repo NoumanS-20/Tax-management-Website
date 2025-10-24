@@ -60,6 +60,94 @@ const ITRFormDetails: React.FC = () => {
     });
   };
 
+  const generateITRXML = (formData: TaxForm) => {
+    // Generate ITR XML compatible with Income Tax Department's offline utility
+    const totalIncome = Object.values(formData.income).reduce((sum, val) => sum + val, 0);
+    const totalDeductions = Object.values(formData.deductions).reduce((sum, val) => sum + val, 0);
+    
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<ITR>
+  <ITRForm>
+    <FormName>${formData.formType}</FormName>
+    <AssessmentYear>${formData.assessmentYear}</AssessmentYear>
+    <FinancialYear>${formData.financialYear}</FinancialYear>
+    <FilingDate>${new Date().toISOString().split('T')[0]}</FilingDate>
+    <Status>${formData.status}</Status>
+  </ITRForm>
+  <IncomeDetails>
+    <SalaryIncome>${formData.income.salary}</SalaryIncome>
+    <HousePropertyIncome>${formData.income.houseProperty}</HousePropertyIncome>
+    <BusinessIncome>${formData.income.businessIncome}</BusinessIncome>
+    <CapitalGains>${formData.income.capitalGains}</CapitalGains>
+    <OtherSources>${formData.income.other}</OtherSources>
+    <GrossIncome>${totalIncome}</GrossIncome>
+  </IncomeDetails>
+  <Deductions>
+    <Section80C>${formData.deductions.section80C}</Section80C>
+    <Section80D>${formData.deductions.section80D}</Section80D>
+    <Section80E>${formData.deductions.section80E}</Section80E>
+    <Section80G>${formData.deductions.section80G}</Section80G>
+    <Section24>${formData.deductions.section24}</Section24>
+    <OtherDeductions>${formData.deductions.other}</OtherDeductions>
+    <TotalDeductions>${totalDeductions}</TotalDeductions>
+  </Deductions>
+  <Exemptions>
+    <HRA>${formData.exemptions.hra}</HRA>
+    <LTA>${formData.exemptions.lta}</LTA>
+    <OtherExemptions>${formData.exemptions.other}</OtherExemptions>
+    <TotalExemptions>${Object.values(formData.exemptions).reduce((sum, val) => sum + val, 0)}</TotalExemptions>
+  </Exemptions>
+  <TaxComputation>
+    <GrossTotalIncome>${formData.taxCalculation.grossTotalIncome}</GrossTotalIncome>
+    <TotalDeductions>${formData.taxCalculation.totalDeductions}</TotalDeductions>
+    <TotalExemptions>${formData.taxCalculation.totalExemptions}</TotalExemptions>
+    <TaxableIncome>${formData.taxCalculation.taxableIncome}</TaxableIncome>
+    <TaxOnIncome>${formData.taxCalculation.incomeTax}</TaxOnIncome>
+    <Surcharge>${formData.taxCalculation.surcharge}</Surcharge>
+    <HealthEducationCess>${formData.taxCalculation.cess}</HealthEducationCess>
+    <TotalTaxLiability>${formData.taxCalculation.totalTax}</TotalTaxLiability>
+  </TaxComputation>
+  <TaxPayments>
+    <TDS>${formData.taxCalculation.tds}</TDS>
+    <AdvanceTax>${formData.taxCalculation.advanceTax}</AdvanceTax>
+    <SelfAssessmentTax>${formData.taxCalculation.selfAssessmentTax}</SelfAssessmentTax>
+    <TotalTaxPaid>${formData.taxCalculation.tds + formData.taxCalculation.advanceTax + formData.taxCalculation.selfAssessmentTax}</TotalTaxPaid>
+  </TaxPayments>
+  <RefundOrPayable>
+    <RefundAmount>${formData.taxCalculation.refund}</RefundAmount>
+    <NetTaxLiability>${formData.taxCalculation.totalTax - formData.taxCalculation.tds - formData.taxCalculation.advanceTax - formData.taxCalculation.selfAssessmentTax}</NetTaxLiability>
+  </RefundOrPayable>
+  <Metadata>
+    <CreatedAt>${formData.createdAt}</CreatedAt>
+    <UpdatedAt>${formData.updatedAt}</UpdatedAt>
+    <FiledAt>${formData.filedAt || 'Not Filed'}</FiledAt>
+    <DocumentCount>${formData.documents?.length || 0}</DocumentCount>
+  </Metadata>
+</ITR>`;
+    return xml;
+  };
+
+  const handleExportXML = () => {
+    if (!form) return;
+    
+    try {
+      const xml = generateITRXML(form);
+      const blob = new Blob([xml], { type: 'application/xml' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ITR_${form.formType}_${form.assessmentYear}_${form.id}.xml`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('ITR XML file downloaded successfully! You can now upload this to the Income Tax e-filing portal.');
+    } catch (error) {
+      console.error('Error exporting XML:', error);
+      toast.error('Failed to export XML file');
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'draft':
@@ -142,9 +230,9 @@ const ITRFormDetails: React.FC = () => {
               Edit Form
             </Button>
           )}
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportXML}>
             <Download className="w-4 h-4 mr-2" />
-            Download
+            Export to XML
           </Button>
         </div>
       </div>
@@ -174,6 +262,41 @@ const ITRFormDetails: React.FC = () => {
                 <p className="font-semibold text-gray-900">{formatDate(form.filedAt)}</p>
               </div>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* XML Export Info Card */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-4">
+            <div className="bg-blue-100 p-3 rounded-lg">
+              <FileText className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Export to Income Tax Portal
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">
+                Click "Export to XML" to download your ITR data in XML format. This file can be uploaded to the Income Tax Department's e-filing portal.
+              </p>
+              <div className="bg-white rounded-lg p-4 border border-blue-200">
+                <p className="text-sm font-medium text-gray-900 mb-2">📋 How to use the XML file:</p>
+                <ol className="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                  <li>Download the XML file using the "Export to XML" button above</li>
+                  <li>Visit the Income Tax e-filing portal: <a href="https://www.incometax.gov.in/iec/foportal" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">incometax.gov.in</a></li>
+                  <li>Log in with your credentials</li>
+                  <li>Go to "File Income Tax Return"</li>
+                  <li>Select "Import from XML" or use the offline utility</li>
+                  <li>Upload the downloaded XML file</li>
+                  <li>Verify all data and complete the filing process</li>
+                </ol>
+              </div>
+              <div className="mt-3 flex items-center space-x-2 text-sm text-amber-700">
+                <AlertCircle className="w-4 h-4" />
+                <span>Note: Always verify all data before final submission to the Income Tax Department.</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

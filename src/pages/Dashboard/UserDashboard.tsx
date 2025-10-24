@@ -317,7 +317,7 @@ const UserDashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="mt-4">
+            <div className="mt-4 space-y-2">
               <Button 
                 variant="outline" 
                 className="w-full" 
@@ -325,6 +325,12 @@ const UserDashboard: React.FC = () => {
                 onClick={handleDownloadGuide}
               >
                 Download ITR Guide
+              </Button>
+              <Button 
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
+                onClick={() => window.location.href = '/dashboard/guide'}
+              >
+                📚 Complete ITR Filing Guide
               </Button>
             </div>
           </CardContent>

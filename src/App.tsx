@@ -15,6 +15,8 @@ import ITRFormDetails from './pages/ITR/ITRFormDetails';
 import ITRFormEdit from './pages/ITR/ITRFormEdit';
 import AdvancedTaxCalculator from './pages/Calculator/AdvancedTaxCalculator';
 import NotificationCenter from './components/Notifications/NotificationCenter';
+import ITRGuide from './pages/Dashboard/ITRGuide';
+import Reports from './pages/Reports/Reports';
 import TermsOfService from './pages/Legal/TermsOfService';
 import PrivacyPolicy from './pages/Legal/PrivacyPolicy';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -67,7 +69,8 @@ const DashboardRouter: React.FC = () => {
       <Route path="/itr-forms/:id/edit" element={<ITRFormEdit />} />
       <Route path="/calculator" element={<AdvancedTaxCalculator />} />
       <Route path="/notifications" element={<NotificationCenter />} />
-      <Route path="/reports" element={<div className="text-center py-12"><h2 className="text-2xl font-bold text-gray-900 mb-4">Reports</h2><p className="text-gray-600">Detailed reports coming soon...</p></div>} />
+      <Route path="/guide" element={<ITRGuide />} />
+      <Route path="/reports" element={<Reports />} />
       
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminDashboard />} />

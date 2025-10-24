@@ -320,6 +320,23 @@ class ApiService {
     console.log('API: Blob size:', blob.size, 'Type:', blob.type);
     return blob;
   }
+
+  // Contact APIs
+  async createContact(contactData: {
+    name: string;
+    email: string;
+    phone?: string;
+    subject: string;
+    message: string;
+  }): Promise<ApiResponse> {
+    console.log('API: Creating contact message');
+    const response = await fetchWithTimeout(`${API_BASE_URL}/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(contactData)
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export const apiService = new ApiService();
