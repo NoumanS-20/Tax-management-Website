@@ -35,8 +35,8 @@ const UserDashboard: React.FC = () => {
         const yearlyData: any = {};
         
         forms.forEach((form: any) => {
-          // Sum up income from all sources
-          const formIncome = Object.values(form.income || {}).reduce((sum: number, val: any) => sum + (Number(val) || 0), 0);
+          // Use the pre-calculated totalIncome from the form (already calculated in backend)
+          const formIncome = form.income?.totalIncome || 0;
           income += formIncome;
           
           // Get calculated tax

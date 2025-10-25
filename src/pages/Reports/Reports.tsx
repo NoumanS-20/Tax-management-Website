@@ -125,29 +125,41 @@ const Reports: React.FC = () => {
     let totalTax = 0;
     let tds = 0;
 
+    console.log('Calculating tax summary for forms:', forms);
+
     forms.forEach((form: any) => {
-      // Calculate total income from all sources
-      const income = form.income || {};
-      totalIncome += Object.values(income).reduce(
-        (sum: number, val: any) => sum + (Number(val) || 0),
-        0
-      );
+      // Use pre-calculated totalIncome from the form to avoid double counting
+      totalIncome += form.income?.totalIncome || 0;
 
-      // Calculate total deductions
-      const deductions = form.deductions || {};
-      totalDeductions += Object.values(deductions).reduce(
-        (sum: number, val: any) => sum + (Number(val) || 0),
-        0
-      );
+      // Use pre-calculated totalDeductions from the form to avoid double counting
+      totalDeductions += form.deductions?.totalDeductions || 0;
 
-      // Get tax calculation
+      // Get tax calculation - ensure taxCalculation object exists
       if (form.taxCalculation) {
+        console.log('Form tax calculation:', {
+          formId: form.id,
+          totalTax: form.taxCalculation.totalTax,
+          tds: form.taxCalculation.tds,
+          taxCalculation: form.taxCalculation
+        });
         totalTax += form.taxCalculation.totalTax || 0;
+        tds += form.taxCalculation.tds || 0;
+      } else {
+        console.log('Form has no taxCalculation:', form.id);
       }
     });
 
     const taxableIncome = totalIncome - totalDeductions;
     const taxPayable = Math.max(0, totalTax - tds);
+
+    console.log('Tax Summary Calculated:', {
+      totalIncome,
+      totalDeductions,
+      taxableIncome,
+      totalTax,
+      tds,
+      taxPayable
+    });
 
     setTaxSummary({
       totalIncome,
@@ -281,8 +293,8 @@ const Reports: React.FC = () => {
       color: 'purple'
     },
     {
-      label: 'Tax Payable',
-      value: taxSummary.taxPayable,
+      label: 'Total Tax',
+      value: taxSummary.totalTax,
       change: -5.4,
       icon: <PieChart className="w-6 h-6" />,
       color: 'red'
@@ -359,6 +371,16 @@ const Reports: React.FC = () => {
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
+          {taxSummary.totalTax === 0 && taxSummary.totalIncome > 0 && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start space-x-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-yellow-800">
+                <strong>Tax calculation not found.</strong> To recalculate tax for existing forms, 
+                please open each ITR form, click "Edit", and then "Save". This will trigger automatic 
+                tax calculation.
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

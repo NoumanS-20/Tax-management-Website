@@ -285,6 +285,52 @@ taxFormSchema.pre('save', function(next) {
     this.taxCalculation.totalDeductions - 
     this.taxCalculation.totalExemptions;
 
+  // Calculate income tax based on slabs
+  const taxableIncome = this.taxCalculation.taxableIncome;
+  let tax = 0;
+  let surcharge = 0;
+  let cess = 0;
+
+  if (taxableIncome <= 250000) {
+    tax = 0;
+  } else if (taxableIncome <= 500000) {
+    tax = (taxableIncome - 250000) * 0.05;
+  } else if (taxableIncome <= 750000) {
+    tax = 12500 + (taxableIncome - 500000) * 0.10;
+  } else if (taxableIncome <= 1000000) {
+    tax = 37500 + (taxableIncome - 750000) * 0.15;
+  } else if (taxableIncome <= 1250000) {
+    tax = 75000 + (taxableIncome - 1000000) * 0.20;
+  } else if (taxableIncome <= 1500000) {
+    tax = 125000 + (taxableIncome - 1250000) * 0.25;
+  } else {
+    tax = 187500 + (taxableIncome - 1500000) * 0.30;
+  }
+
+  // Surcharge calculation
+  if (taxableIncome > 5000000 && taxableIncome <= 10000000) {
+    surcharge = tax * 0.10;
+  } else if (taxableIncome > 10000000 && taxableIncome <= 20000000) {
+    surcharge = tax * 0.15;
+  } else if (taxableIncome > 20000000 && taxableIncome <= 50000000) {
+    surcharge = tax * 0.25;
+  } else if (taxableIncome > 50000000) {
+    surcharge = tax * 0.37;
+  }
+
+  // Health and Education Cess (4%)
+  cess = (tax + surcharge) * 0.04;
+
+  // Update tax calculation fields
+  this.taxCalculation.incomeTax = Math.round(tax);
+  this.taxCalculation.surcharge = Math.round(surcharge);
+  this.taxCalculation.cess = Math.round(cess);
+  this.taxCalculation.totalTax = Math.round(tax + surcharge + cess);
+
+  // Calculate refund/tax payable
+  const totalTaxPaid = this.taxCalculation.tds + this.taxCalculation.advanceTax + this.taxCalculation.selfAssessmentTax;
+  this.taxCalculation.refund = totalTaxPaid - this.taxCalculation.totalTax;
+
   this.updatedAt = new Date();
   next();
 });

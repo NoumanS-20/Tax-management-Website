@@ -1,9 +1,126 @@
-import React from 'react';
-import { Bell, Search, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Search, ChevronDown, X, Check, Trash2, AlertCircle, Mail, Info, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { apiService } from '../../services/api';
+import toast from 'react-hot-toast';
+
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  priority: string;
+  isRead: boolean;
+  metadata?: any;
+  createdAt: string;
+  readAt?: string;
+}
 
 const Header: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchNotifications();
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getNotifications({ limit: 5 });
+      if (response.success) {
+        setNotifications(response.data.notifications);
+        setUnreadCount(response.data.unreadCount);
+      }
+    } catch (error: any) {
+      // Silently fail to avoid spam
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAsRead = async (id: string) => {
+    try {
+      await apiService.markNotificationAsRead(id);
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.id === id ? { ...notif, isRead: true } : notif
+        )
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error: any) {
+      toast.error('Failed to mark as read');
+    }
+  };
+
+  const deleteNotification = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await apiService.deleteNotification(id);
+      setNotifications(prev => prev.filter(notif => notif.id !== id));
+      toast.success('Notification deleted');
+    } catch (error: any) {
+      toast.error('Failed to delete notification');
+    }
+  };
+
+  const getNotificationIcon = (type: string, priority: string) => {
+    const iconClass = `w-4 h-4 ${
+      priority === 'urgent' ? 'text-red-600' :
+      priority === 'high' ? 'text-orange-600' :
+      priority === 'medium' ? 'text-blue-600' :
+      'text-gray-600'
+    }`;
+
+    switch (type) {
+      case 'tax_deadline':
+      case 'payment_due':
+        return <AlertCircle className={iconClass} />;
+      case 'document_uploaded':
+        return <Mail className={iconClass} />;
+      case 'form_reviewed':
+      case 'refund_processed':
+        return <CheckCircle className={iconClass} />;
+      default:
+        return <Info className={iconClass} />;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return 'Yesterday';
+    return date.toLocaleDateString();
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.isRead) {
+      markAsRead(notification.id);
+    }
+    setShowNotifications(false);
+    
+    // Navigate based on notification metadata
+    if (notification.metadata?.actionUrl) {
+      navigate(notification.metadata.actionUrl);
+    } else if (notification.metadata?.taxFormId) {
+      navigate(`/dashboard/itr-forms/${notification.metadata.taxFormId}`);
+    } else if (notification.metadata?.documentId) {
+      navigate('/dashboard/documents');
+    }
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
