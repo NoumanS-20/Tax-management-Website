@@ -90,21 +90,26 @@ app.use('*', (req, res) => {
 });
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/swifttax')
-  .then(() => {
-    console.log('✅ Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('❌ MongoDB connection error:', error.message);
-    console.log('💡 Make sure MongoDB is running on your system');
-    console.log('💡 You can also use MongoDB Atlas cloud database');
+
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/swifttax')
+    .then(() => {
+      console.log('✅ Connected to MongoDB');
+    })
+    .catch((error) => {
+      console.error('❌ MongoDB connection error:', error.message);
+      console.log('💡 Make sure MongoDB is running on your system');
+      console.log('💡 You can also use MongoDB Atlas cloud database');
+    });
+}
+
+
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 SwiftTax API server running on http://localhost:${PORT}`);
+    console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   });
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 SwiftTax API server running on http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-});
+}
 
 module.exports = app;

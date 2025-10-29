@@ -1,18 +1,17 @@
 const request = require('supertest');
 const app = require('../app');
 const User = require('../models/User');
-const mongoose = require('mongoose');
+require('./setup');
 
 describe('Authentication Endpoints', () => {
   beforeAll(async () => {
-    // Connect to test database
-    await mongoose.connect(process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/swifttax-test');
+    // DB connection handled in setup.js
   });
 
   afterAll(async () => {
     // Clean up test database
     await User.deleteMany({});
-    await mongoose.connection.close();
+    // DB connection closed in setup.js
   });
 
   beforeEach(async () => {

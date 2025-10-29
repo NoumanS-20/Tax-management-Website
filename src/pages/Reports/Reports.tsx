@@ -22,17 +22,8 @@ import { Card, CardHeader, CardContent } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { apiService } from '../../services/api';
 import toast from 'react-hot-toast';
+import jsPDF from 'jspdf';
 
-interface ReportData {
-  id: string;
-  type: string;
-  title: string;
-  financialYear: string;
-  generatedDate: string;
-  status: string;
-  fileSize: string;
-  description: string;
-}
 
 interface TaxSummary {
   totalIncome: number;
@@ -106,10 +97,19 @@ const Reports: React.FC = () => {
         calculateTaxSummary(filteredForms);
       }
 
-      // Fetch documents
-      const docsResponse = await apiService.getDocuments();
-      if (docsResponse.success) {
-        setDocuments(docsResponse.data.documents);
+      // Fetch documents - handle gracefully if it fails
+      try {
+        const docsResponse = await apiService.getDocuments();
+        if (docsResponse.success && docsResponse.data && docsResponse.data.documents) {
+          setDocuments(docsResponse.data.documents);
+        } else {
+          // No documents found, set empty array
+          setDocuments([]);
+        }
+      } catch (docError) {
+        console.error('Error fetching documents:', docError);
+        // Don't fail the entire request if documents fail
+        setDocuments([]);
       }
     } catch (error: any) {
       console.error('Error fetching report data:', error);
@@ -182,12 +182,168 @@ const Reports: React.FC = () => {
     try {
       toast.loading('Generating PDF report...');
       
-      // Simulate PDF generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create new PDF document
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 20;
+      let yPosition = margin;
+
+      // Helper function to check if we need a new page
+      const checkNewPage = (requiredSpace: number) => {
+        if (yPosition + requiredSpace > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+          return true;
+        }
+        return false;
+      };
+
+      // Helper to add text with word wrap
+      // (Removed unused addWrappedText function)
+
+      // Title
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Tax Report', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
+
+      // Financial Year
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Financial Year: ${selectedYear}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 15;
+
+      // Tax Summary Section
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Tax Summary', margin, yPosition);
+      yPosition += 10;
+
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      
+      const formatCurrency = (amount: number) => {
+        return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      };
+
+      const summaryData = [
+        { label: 'Total Income:', value: formatCurrency(taxSummary.totalIncome) },
+        { label: 'Total Deductions:', value: formatCurrency(taxSummary.totalDeductions) },
+        { label: 'Taxable Income:', value: formatCurrency(taxSummary.taxableIncome) },
+        { label: 'Total Tax:', value: formatCurrency(taxSummary.totalTax) },
+        { label: 'TDS Paid:', value: formatCurrency(taxSummary.tds) },
+        { label: 'Tax Payable/Refundable:', value: formatCurrency(taxSummary.taxPayable) }
+      ];
+
+      summaryData.forEach(item => {
+        checkNewPage(10);
+        doc.text(item.label, margin + 10, yPosition);
+        doc.text(item.value, pageWidth - margin - 10, yPosition, { align: 'right' });
+        yPosition += 8;
+      });
+
+      yPosition += 10;
+
+      // ITR Forms Section
+      if (filteredForms.length > 0) {
+        checkNewPage(20);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('ITR Forms Filed', margin, yPosition);
+        yPosition += 10;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+
+        // Table headers
+        const headers = ['Form Type', 'Assessment Year', 'Status', 'Income', 'Tax', 'Date'];
+        const colWidths = [30, 35, 25, 30, 25, 30];
+        const startX = margin;
+
+        doc.setFont('helvetica', 'bold');
+        let xPos = startX;
+        headers.forEach((header, i) => {
+          doc.text(header, xPos, yPosition);
+          xPos += colWidths[i];
+        });
+        yPosition += 7;
+
+        // Draw line under headers
+        doc.line(startX, yPosition - 2, pageWidth - margin, yPosition - 2);
+        yPosition += 3;
+
+        doc.setFont('helvetica', 'normal');
+
+        // Table rows
+        filteredForms.forEach((form: any) => {
+          checkNewPage(10);
+          
+          xPos = startX;
+          const rowData = [
+            form.formType || 'N/A',
+            form.assessmentYear || 'N/A',
+            form.status || 'draft',
+            formatCurrency(form.income?.totalIncome || 0),
+            formatCurrency(form.taxCalculation?.totalTax || 0),
+            form.submittedAt ? new Date(form.submittedAt).toLocaleDateString() : 'Not submitted'
+          ];
+
+          rowData.forEach((data, i) => {
+            const text = doc.splitTextToSize(data, colWidths[i] - 2)[0]; // Truncate if too long
+            doc.text(text, xPos, yPosition);
+            xPos += colWidths[i];
+          });
+          yPosition += 7;
+        });
+
+        yPosition += 10;
+      }
+
+      // Documents Section
+      checkNewPage(20);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Documents Summary', margin, yPosition);
+      yPosition += 10;
+
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+
+      const totalDocuments = documents.length;
+      const approvedDocs = documents.filter((d: any) => d.status === 'approved').length;
+      const pendingDocs = documents.filter((d: any) => d.status === 'pending').length;
+
+      doc.text(`Total Documents: ${totalDocuments}`, margin + 10, yPosition);
+      yPosition += 8;
+      doc.text(`Approved: ${approvedDocs}`, margin + 10, yPosition);
+      yPosition += 8;
+      doc.text(`Pending: ${pendingDocs}`, margin + 10, yPosition);
+      yPosition += 15;
+
+      // Footer
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.text(
+          `Generated on ${new Date().toLocaleDateString()} - Page ${i} of ${pageCount}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        );
+      }
+
+      // Save the PDF
+      const fileName = `tax-report-${selectedYear}-${Date.now()}.pdf`;
+      doc.save(fileName);
       
       toast.dismiss();
-      toast.success('PDF report downloaded');
+      toast.success('PDF report downloaded successfully');
     } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.dismiss();
       toast.error('Failed to generate PDF');
     }
   };
@@ -230,6 +386,239 @@ const Reports: React.FC = () => {
 
   const handleEmailReport = () => {
     toast.success('Report will be emailed to your registered email address');
+  };
+
+  const handleGenerateComprehensiveReport = async () => {
+    try {
+      toast.loading('Generating comprehensive report...');
+      
+      // Generate comprehensive CSV with all data
+      let csv = 'Tax Report - Comprehensive\n';
+      csv += `Financial Year: ${selectedYear}\n`;
+      csv += `Generated On: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+      
+      // Summary Section
+      csv += 'SUMMARY\n';
+      csv += 'Category,Amount\n';
+      csv += `Total Income,${taxSummary.totalIncome}\n`;
+      csv += `Total Deductions,${taxSummary.totalDeductions}\n`;
+      csv += `Taxable Income,${taxSummary.taxableIncome}\n`;
+      csv += `Total Tax,${taxSummary.totalTax}\n`;
+      csv += `TDS Deducted,${taxSummary.tds}\n`;
+      csv += `Tax Payable,${taxSummary.taxPayable}\n\n`;
+      
+      // Forms Section
+      csv += 'ITR FORMS\n';
+      csv += 'Form Type,Assessment Year,Status,Total Income,Tax Amount,Created Date\n';
+      filteredForms.forEach(form => {
+        csv += `${form.formType},${form.assessmentYear},${form.status},${form.income?.totalIncome || 0},${form.taxCalculation?.totalTax || 0},${new Date(form.createdAt).toLocaleDateString('en-IN')}\n`;
+      });
+      
+      csv += '\n';
+      
+      // Documents Section
+      csv += 'DOCUMENTS\n';
+      csv += `Total Documents: ${documents.length}\n`;
+      csv += `Approved: ${documents.filter(d => d.status === 'approved').length}\n`;
+      csv += `Pending: ${documents.filter(d => d.status === 'pending').length}\n`;
+      
+      // Download CSV
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `comprehensive-report-${selectedYear}-${Date.now()}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.dismiss();
+      toast.success('Comprehensive report downloaded successfully!');
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Failed to generate comprehensive report');
+    }
+  };
+
+  const handleDownloadForm26AS = async () => {
+    try {
+      toast.loading('Generating Form 26AS...');
+      
+      // Generate Form 26AS format
+      let content = '=== FORM 26AS (Tax Credit Statement) ===\n\n';
+      content += `PAN: ${taxForms[0]?.personalInfo?.panNumber || 'N/A'}\n`;
+      content += `Assessment Year: ${selectedYear}\n`;
+      content += `Generated On: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+      
+      content += '--- TDS DETAILS ---\n';
+      content += 'Deductor,TDS Amount,Date,Section\n';
+      
+      let totalTDS = 0;
+      taxForms.forEach(form => {
+        if (form.taxCalculation?.tds > 0) {
+          content += `Employer,${form.taxCalculation.tds},${new Date(form.createdAt).toLocaleDateString('en-IN')},194\n`;
+          totalTDS += form.taxCalculation.tds;
+        }
+      });
+      
+      content += `\nTotal TDS: ₹${totalTDS}\n\n`;
+      
+      content += '--- TAX SUMMARY ---\n';
+      content += `Total Income: ₹${taxSummary.totalIncome}\n`;
+      content += `Total Deductions: ₹${taxSummary.totalDeductions}\n`;
+      content += `Taxable Income: ₹${taxSummary.taxableIncome}\n`;
+      content += `Total Tax Liability: ₹${taxSummary.totalTax}\n`;
+      content += `TDS Credited: ₹${taxSummary.tds}\n`;
+      content += `Tax Payable/(Refundable): ₹${taxSummary.taxPayable}\n\n`;
+      
+      content += '--- IMPORTANT NOTES ---\n';
+      content += '1. This is a system-generated document for reference only\n';
+      content += '2. For official Form 26AS, please download from TRACES portal\n';
+      content += '3. Visit: https://www.tdscpc.gov.in/\n';
+      content += '4. Verify all TDS credits match with this statement\n';
+      
+      // Download as text file
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Form-26AS-${selectedYear}-${Date.now()}.txt`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.dismiss();
+      toast.success('Form 26AS downloaded successfully!');
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Failed to generate Form 26AS');
+    }
+  };
+
+  const handleGenerateTaxComputation = async () => {
+    try {
+      toast.loading('Generating tax computation sheet...');
+      
+      // Generate detailed tax computation
+      let content = '=== TAX COMPUTATION SHEET ===\n\n';
+      content += `Assessment Year: ${selectedYear}\n`;
+      content += `Generated On: ${new Date().toLocaleDateString('en-IN')}\n\n`;
+      
+      content += '--- INCOME COMPUTATION ---\n';
+      content += 'Income Head,Amount (₹)\n';
+      
+      let totalIncome = 0;
+      taxForms.forEach(form => {
+        if (form.income) {
+          content += `Salary Income,${form.income.salary || 0}\n`;
+          content += `Business Income,${form.income.businessIncome || 0}\n`;
+          content += `Capital Gains,${form.income.capitalGains || 0}\n`;
+          content += `House Property,${form.income.houseProperty || 0}\n`;
+          content += `Other Income,${form.income.otherIncome || 0}\n`;
+          totalIncome += form.income.totalIncome || 0;
+        }
+      });
+      
+      content += `\nGross Total Income: ₹${totalIncome}\n\n`;
+      
+      content += '--- DEDUCTIONS (CHAPTER VI-A) ---\n';
+      content += 'Section,Amount (₹)\n';
+      
+      let totalDeductions = 0;
+      taxForms.forEach(form => {
+        if (form.deductions) {
+          content += `Section 80C (Investments),${form.deductions.section80C || 0}\n`;
+          content += `Section 80D (Health Insurance),${form.deductions.section80D || 0}\n`;
+          content += `Section 80G (Donations),${form.deductions.section80G || 0}\n`;
+          content += `Section 24 (Home Loan Interest),${form.deductions.section24 || 0}\n`;
+          content += `Section 80E (Education Loan),${form.deductions.section80E || 0}\n`;
+          totalDeductions += form.deductions.totalDeductions || 0;
+        }
+      });
+      
+      content += `\nTotal Deductions: ₹${totalDeductions}\n\n`;
+      
+      content += '--- TAX CALCULATION ---\n';
+      const taxableIncome = totalIncome - totalDeductions;
+      content += `Taxable Income: ₹${taxableIncome}\n\n`;
+      
+      // Calculate tax slabs
+      content += 'Tax Slabs:\n';
+      let tax = 0;
+      if (taxableIncome <= 250000) {
+        content += `Up to ₹2,50,000: ₹0 (Nil)\n`;
+      } else if (taxableIncome <= 500000) {
+        tax = (taxableIncome - 250000) * 0.05;
+        content += `₹2,50,001 - ₹5,00,000: ₹${tax.toFixed(0)} (5%)\n`;
+      } else if (taxableIncome <= 750000) {
+        tax = 12500 + (taxableIncome - 500000) * 0.10;
+        content += `₹2,50,001 - ₹5,00,000: ₹12,500 (5%)\n`;
+        content += `₹5,00,001 - ₹7,50,000: ₹${((taxableIncome - 500000) * 0.10).toFixed(0)} (10%)\n`;
+      } else if (taxableIncome <= 1000000) {
+        tax = 37500 + (taxableIncome - 750000) * 0.15;
+        content += `₹2,50,001 - ₹5,00,000: ₹12,500\n`;
+        content += `₹5,00,001 - ₹7,50,000: ₹25,000\n`;
+        content += `₹7,50,001 - ₹10,00,000: ₹${((taxableIncome - 750000) * 0.15).toFixed(0)} (15%)\n`;
+      } else if (taxableIncome <= 1250000) {
+        tax = 75000 + (taxableIncome - 1000000) * 0.20;
+        content += `Up to ₹10,00,000: ₹75,000\n`;
+        content += `₹10,00,001 - ₹12,50,000: ₹${((taxableIncome - 1000000) * 0.20).toFixed(0)} (20%)\n`;
+      } else if (taxableIncome <= 1500000) {
+        tax = 125000 + (taxableIncome - 1250000) * 0.25;
+        content += `Up to ₹12,50,000: ₹1,25,000\n`;
+        content += `₹12,50,001 - ₹15,00,000: ₹${((taxableIncome - 1250000) * 0.25).toFixed(0)} (25%)\n`;
+      } else {
+        tax = 187500 + (taxableIncome - 1500000) * 0.30;
+        content += `Up to ₹15,00,000: ₹1,87,500\n`;
+        content += `Above ₹15,00,000: ₹${((taxableIncome - 1500000) * 0.30).toFixed(0)} (30%)\n`;
+      }
+      
+      content += `\nIncome Tax: ₹${Math.round(tax)}\n`;
+      
+      // Surcharge
+      let surcharge = 0;
+      if (taxableIncome > 5000000) {
+        surcharge = tax * 0.10;
+        content += `Surcharge (10%): ₹${Math.round(surcharge)}\n`;
+      }
+      
+      // Cess
+      const cess = (tax + surcharge) * 0.04;
+      content += `Health & Education Cess (4%): ₹${Math.round(cess)}\n`;
+      
+      const totalTax = Math.round(tax + surcharge + cess);
+      content += `\nTotal Tax Liability: ₹${totalTax}\n`;
+      content += `Less: TDS/TCS: ₹${taxSummary.tds}\n`;
+      content += `Tax Payable/(Refundable): ₹${totalTax - taxSummary.tds}\n\n`;
+      
+      content += '--- NOTES ---\n';
+      content += '1. Tax calculated as per Income Tax Act, 1961\n';
+      content += '2. Rates applicable for AY ' + selectedYear + '\n';
+      content += '3. This is a system-generated computation\n';
+      content += '4. Please verify all figures before ITR filing\n';
+      
+      // Download as text file
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `tax-computation-${selectedYear}-${Date.now()}.txt`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.dismiss();
+      toast.success('Tax computation sheet downloaded successfully!');
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Failed to generate tax computation sheet');
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -655,7 +1044,7 @@ const Reports: React.FC = () => {
               variant="outline"
               className="h-auto py-4 flex-col"
               icon={<FileBarChart className="w-6 h-6 mb-2" />}
-              onClick={() => toast.success('Generating comprehensive report...')}
+              onClick={handleGenerateComprehensiveReport}
             >
               <span className="text-base font-semibold">Generate Comprehensive Report</span>
               <span className="text-xs text-gray-500 mt-1">
@@ -666,7 +1055,7 @@ const Reports: React.FC = () => {
               variant="outline"
               className="h-auto py-4 flex-col"
               icon={<Download className="w-6 h-6 mb-2" />}
-              onClick={() => toast.success('Downloading Form 26AS...')}
+              onClick={handleDownloadForm26AS}
             >
               <span className="text-base font-semibold">Download Form 26AS</span>
               <span className="text-xs text-gray-500 mt-1">
@@ -677,7 +1066,7 @@ const Reports: React.FC = () => {
               variant="outline"
               className="h-auto py-4 flex-col"
               icon={<BarChart3 className="w-6 h-6 mb-2" />}
-              onClick={() => toast.success('Generating tax computation...')}
+              onClick={handleGenerateTaxComputation}
             >
               <span className="text-base font-semibold">Tax Computation Sheet</span>
               <span className="text-xs text-gray-500 mt-1">

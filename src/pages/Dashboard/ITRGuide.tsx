@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { 
   CheckCircle, FileText, Upload, Download, Send, 
-  UserPlus, Edit, Eye, AlertCircle, ChevronRight,
+  UserPlus, Eye, AlertCircle, ChevronRight,
   Home, Building, Calculator, Shield, ArrowRight
 } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '../../components/UI/Card';
+import { Card, CardContent } from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import { useNavigate } from 'react-router-dom';
 

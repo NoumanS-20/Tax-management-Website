@@ -3,6 +3,7 @@ const app = require('../app');
 const User = require('../models/User');
 const TaxForm = require('../models/TaxForm');
 const jwt = require('jsonwebtoken');
+require('./setup');
 
 describe('Tax Management Endpoints', () => {
   let user;
@@ -18,6 +19,7 @@ describe('Tax Management Endpoints', () => {
       role: 'user'
     });
     await user.save();
+    // DB connection handled in setup.js
 
     // Generate access token
     accessToken = jwt.sign(

@@ -12,7 +12,6 @@ import {
   HelpCircle,
   LogOut,
   Bell,
-  Receipt,
   BookOpen
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';

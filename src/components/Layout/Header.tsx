@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, ChevronDown, X, Check, Trash2, AlertCircle, Mail, Info, CheckCircle } from 'lucide-react';
+import { Bell, Search, ChevronDown, X, Trash2, AlertCircle, Mail, Info, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
@@ -141,10 +141,124 @@ const Header: React.FC = () => {
             />
           </div>
 
-          <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-            <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-          </button>
+          {/* Notifications Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-semibold">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Dropdown Panel */}
+            {showNotifications && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowNotifications(false)}
+                ></div>
+
+                {/* Dropdown */}
+                <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[32rem] overflow-hidden flex flex-col">
+                  {/* Header */}
+                  <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Notifications</h3>
+                      {unreadCount > 0 && (
+                        <p className="text-xs text-gray-600">{unreadCount} unread</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                    >
+                      <X className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="overflow-y-auto flex-1">
+                    {loading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    ) : notifications.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-12 px-4">
+                        <Bell className="w-12 h-12 text-gray-300 mb-3" />
+                        <p className="text-gray-600 font-medium">No notifications</p>
+                        <p className="text-sm text-gray-500 mt-1">You're all caught up!</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-100">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            onClick={() => handleNotificationClick(notification)}
+                            className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                              !notification.isRead ? 'bg-blue-50' : ''
+                            }`}
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-shrink-0 mt-1">
+                                {getNotificationIcon(notification.type, notification.priority)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between">
+                                  <p className={`text-sm font-medium ${
+                                    !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                                  }`}>
+                                    {notification.title}
+                                  </p>
+                                  {!notification.isRead && (
+                                    <span className="ml-2 w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></span>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center justify-between mt-2">
+                                  <span className="text-xs text-gray-500">
+                                    {formatDate(notification.createdAt)}
+                                  </span>
+                                  <button
+                                    onClick={(e) => deleteNotification(notification.id, e)}
+                                    className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-gray-500" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  {notifications.length > 0 && (
+                    <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                      <button
+                        onClick={() => {
+                          setShowNotifications(false);
+                          navigate('/dashboard/notifications');
+                        }}
+                        className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        View all notifications
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
 
           <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors duration-200">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">

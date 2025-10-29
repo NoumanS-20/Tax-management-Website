@@ -8,12 +8,18 @@ import { apiService } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const UserDashboard: React.FC = () => {
-  const [daysToDeadline, setDaysToDeadline] = useState(0);
+  const [deadlineCountdown, setDeadlineCountdown] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalTax, setTotalTax] = useState(0);
   const [documentCount, setDocumentCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [financialData, setFinancialData] = useState<any[]>([]);
+  const [taxForms, setTaxForms] = useState<any[]>([]);
 
   // Fetch dashboard data
   useEffect(() => {
@@ -28,6 +34,7 @@ const UserDashboard: React.FC = () => {
       const formsResponse = await apiService.getTaxForms();
       if (formsResponse.success) {
         const forms = formsResponse.data.taxForms;
+        setTaxForms(forms); // Store forms for progress tracking
         
         // Calculate total income and tax from all forms
         let income = 0;
@@ -74,33 +81,22 @@ const UserDashboard: React.FC = () => {
 
   // Calculate days until September 16 ITR deadline
   useEffect(() => {
-    const calculateDaysToDeadline = () => {
-      const today = new Date();
-      const currentYear = today.getFullYear();
-      
-      // ITR deadline is September 16 of current year
-      // If we're past September 16, show next year's deadline
-      let deadlineDate = new Date(currentYear, 8, 16); // Month is 0-indexed, so 8 = September
-      
-      // If today is after this year's deadline, use next year's deadline
-      if (today > deadlineDate) {
-        deadlineDate = new Date(currentYear + 1, 8, 16);
+    const updateCountdown = () => {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      let deadline = new Date(currentYear, 8, 16, 23, 59, 59); // Sep 16, 23:59:59
+      if (now > deadline) {
+        deadline = new Date(currentYear + 1, 8, 16, 23, 59, 59);
       }
-      
-      // Calculate difference in days
-      const diffTime = deadlineDate.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      setDaysToDeadline(diffDays);
+      const diff = deadline.getTime() - now.getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      setDeadlineCountdown({ days, hours, minutes, seconds });
     };
-
-    calculateDaysToDeadline();
-    
-    // Update daily at midnight
-    const interval = setInterval(() => {
-      calculateDaysToDeadline();
-    }, 1000 * 60 * 60 * 24); // Update every 24 hours
-
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -114,11 +110,11 @@ const UserDashboard: React.FC = () => {
   };
 
   // Calculate percentage change (comparing latest year to previous)
-  const calculateChange = (data: any[], key: string) => {
-    if (data.length < 2) return null;
+  const calculateChange = (data: any[], key: string): { value: number; type: 'increase' | 'decrease' } | undefined => {
+    if (data.length < 2) return undefined;
     const latest = data[data.length - 1][key] || 0;
     const previous = data[data.length - 2][key] || 0;
-    if (previous === 0) return null;
+    if (previous === 0) return undefined;
     const change = ((latest - previous) / previous) * 100;
     return { value: Math.abs(change), type: change >= 0 ? 'increase' : 'decrease' };
   };
@@ -160,6 +156,54 @@ const UserDashboard: React.FC = () => {
       console.error('Download guide error:', error);
       toast.error(error.message || 'Failed to download ITR guide');
     }
+  };
+
+  // Calculate ITR filing progress based on actual form data
+  const calculateFilingProgress = () => {
+    if (taxForms.length === 0) {
+      return [
+        { step: 'Create ITR Form', completed: false },
+        { step: 'Personal Information', completed: false },
+        { step: 'Income Details', completed: false },
+        { step: 'Deductions & Exemptions', completed: false },
+        { step: 'Review & Submit', completed: false },
+      ];
+    }
+
+    // Get the most recent form (assuming it's the one being worked on)
+    const currentForm = taxForms[taxForms.length - 1];
+    
+    // Check what sections are completed
+    const hasPersonalInfo = !!(
+      currentForm.personalDetails?.pan ||
+      currentForm.personalDetails?.name ||
+      currentForm.personalDetails?.email
+    );
+    
+    const hasIncomeDetails = !!(
+      currentForm.income?.salary ||
+      currentForm.income?.houseProperty ||
+      currentForm.income?.business ||
+      currentForm.income?.capitalGains ||
+      currentForm.income?.otherSources
+    );
+    
+    const hasDeductions = !!(
+      currentForm.deductions?.section80C ||
+      currentForm.deductions?.section80D ||
+      currentForm.deductions?.otherDeductions
+    );
+    
+    const isSubmitted = currentForm.status === 'submitted' || currentForm.status === 'approved';
+    const isReviewed = currentForm.status === 'in-review' || currentForm.status === 'approved';
+
+    return [
+      { step: 'Create ITR Form', completed: true },
+      { step: 'Personal Information', completed: hasPersonalInfo },
+      { step: 'Income Details', completed: hasIncomeDetails },
+      { step: 'Deductions & Exemptions', completed: hasDeductions },
+      { step: 'Review & Submit', completed: isReviewed || isSubmitted },
+    ];
   };
 
   const recentActivity = [
@@ -210,7 +254,7 @@ const UserDashboard: React.FC = () => {
         />
         <StatsCard
           title="Days to ITR Deadline"
-          value={daysToDeadline.toString()}
+          value={`${deadlineCountdown.days} days`}
           icon={<Calendar className="w-6 h-6" />}
           color="yellow"
         />
@@ -256,12 +300,7 @@ const UserDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { step: 'Personal Information', completed: true },
-                { step: 'Income Details (Form 16)', completed: true },
-                { step: 'Deductions & Exemptions', completed: false },
-                { step: 'Review & Submit', completed: false },
-              ].map((item, index) => (
+              {calculateFilingProgress().map((item, index) => (
                 <div key={index} className="flex items-center space-x-3">
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                     item.completed 
@@ -270,14 +309,37 @@ const UserDashboard: React.FC = () => {
                   }`}>
                     {item.completed && <span className="text-xs">✓</span>}
                   </div>
-                  <span className={`text-sm ${item.completed ? 'text-gray-900' : 'text-gray-500'}`}>
+                  <span className={`text-sm ${item.completed ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
                     {item.step}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="mt-6">
-              <Button className="w-full">Continue ITR Filing</Button>
+            <div className="mt-6 space-y-2">
+              {taxForms.length === 0 ? (
+                <Button 
+                  className="w-full"
+                  onClick={() => window.location.href = '/dashboard/itr-forms/new'}
+                >
+                  Start ITR Filing
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    className="w-full"
+                    onClick={() => {
+                      const latestForm = taxForms[taxForms.length - 1];
+                      const formId = latestForm._id || latestForm.id;
+                      window.location.href = `/dashboard/itr-forms/${formId}/edit`;
+                    }}
+                  >
+                    Continue ITR Filing
+                  </Button>
+                  <p className="text-xs text-center text-gray-500">
+                    {calculateFilingProgress().filter(s => s.completed).length} of {calculateFilingProgress().length} steps completed
+                  </p>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
