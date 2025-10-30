@@ -41,29 +41,29 @@ app.use(cors({
 
 // Rate limiting
 app.use(generalLimiter);
-app.use('/api/auth', authLimiter);
-app.use('/api/documents/upload', uploadLimiter);
+app.use('/auth', authLimiter);
+app.use('/documents/upload', uploadLimiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // File upload security
-app.use('/api/documents/upload', fileUploadSecurity);
+app.use('/documents/upload', fileUploadSecurity);
 
 // Serve static files (when needed)
 app.use('/uploads', express.static(path.join(__dirname, '../server/uploads')));
 app.use('/public', express.static(path.join(__dirname, '../server/public')));
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/tax', taxRoutes);
-app.use('/api/documents', documentRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/contact', contactRoutes);
+// API Routes - without /api prefix since Vercel adds it
+app.use('/auth', authRoutes);
+app.use('/tax', taxRoutes);
+app.use('/documents', documentRoutes);
+app.use('/notifications', notificationRoutes);
+app.use('/contact', contactRoutes);
 
 // ITR Guide download endpoint
-app.get('/api/download-guide', (req, res) => {
+app.get('/download-guide', (req, res) => {
   const filePath = path.join(__dirname, '../server/public', 'ITR-Guide.pdf');
   res.download(filePath, 'Income-Tax-Guide-for-India.pdf', (err) => {
     if (err) {
@@ -77,7 +77,7 @@ app.get('/api/download-guide', (req, res) => {
 });
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ 
     success: true, 
     message: 'SwiftTax API is running',

@@ -12,6 +12,15 @@ I've created the necessary configuration files to make your Express app work as 
 2. **`api/index.js`** - Serverless function entry point for your Express backend
 3. **`api/package.json`** - Dependencies needed for the API
 4. **`VERCEL_DEPLOYMENT.md`** - Detailed deployment guide
+5. **`VERCEL_TROUBLESHOOTING.md`** - Troubleshooting guide with common fixes
+
+## Important Fix
+
+The routes in `api/index.js` have been fixed to remove duplicate `/api` prefix:
+- ✅ Correct: `app.use('/auth', authRoutes)` 
+- ❌ Wrong: `app.use('/api/auth', authRoutes)`
+
+This was causing 404 errors because Vercel already adds the `/api` prefix when routing to serverless functions.
 
 ## Quick Steps to Deploy
 
