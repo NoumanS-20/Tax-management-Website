@@ -41,7 +41,7 @@ git push origin main
 In Vercel project settings, add these required variables:
 
 ```
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/swifttax?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/swifttax?retryWrites=true&w=majority
 JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-random-at-least-32-characters
 JWT_REFRESH_SECRET=your-super-secret-refresh-jwt-key-here-make-it-long-and-random-at-least-32-characters
 NODE_ENV=production
