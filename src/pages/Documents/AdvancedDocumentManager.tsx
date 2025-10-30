@@ -101,7 +101,7 @@ const AdvancedDocumentManager: React.FC = () => {
     switch (status) {
       case 'verified': return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'rejected': return <XCircle className="w-4 h-4 text-red-600" />;
-      case 'pending': return <Clock className="w-4 h-4 text-yellow-600" />;
+  case 'pending': return <Clock className="w-4 h-4 text-green-600" />;
       default: return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
@@ -110,7 +110,7 @@ const AdvancedDocumentManager: React.FC = () => {
     switch (status) {
       case 'verified': return 'text-green-600 bg-green-100';
       case 'rejected': return 'text-red-600 bg-red-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
+  case 'pending': return 'text-green-600 bg-green-100';
       default: return 'text-gray-600 bg-gray-100';
     }
   };
@@ -190,7 +190,7 @@ const AdvancedDocumentManager: React.FC = () => {
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Status</option>
-              <option value="pending">Pending</option>
+              <option value="pending">Submitted</option>
               <option value="verified">Verified</option>
               <option value="rejected">Rejected</option>
             </select>

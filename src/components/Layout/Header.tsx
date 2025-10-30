@@ -18,7 +18,9 @@ interface Notification {
 }
 
 const Header: React.FC = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showUserInfo, setShowUserInfo] = useState(false);
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -123,154 +125,195 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Welcome back, {user?.firstName}!
-          </h2>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-            />
+    <>
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Welcome back, {user?.firstName}!
+            </h2>
           </div>
+    <header className="bg-white border-b border-gray-200 px-6 py-4">
+      ...existing code...
+    </header>
+                placeholder="Search..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              />
+            </div>
 
-          {/* Notifications Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-            >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-semibold">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
+            {/* Notifications Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-semibold">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
 
-            {/* Notification Dropdown Panel */}
-            {showNotifications && (
-              <>
-                {/* Backdrop */}
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowNotifications(false)}
-                ></div>
+              {/* Notification Dropdown Panel */}
+              {showNotifications && (
+                <>
+                  {/* Backdrop */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowNotifications(false)}
+                  ></div>
 
-                {/* Dropdown */}
-                <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[32rem] overflow-hidden flex flex-col">
-                  {/* Header */}
-                  <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">Notifications</h3>
-                      {unreadCount > 0 && (
-                        <p className="text-xs text-gray-600">{unreadCount} unread</p>
-                      )}
+                  {/* Dropdown */}
+                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[32rem] overflow-hidden flex flex-col">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <p className="text-xs text-gray-600">{unreadCount} unread</p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setShowNotifications(false)}
+                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      >
+                        <X className="w-4 h-4 text-gray-600" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setShowNotifications(false)}
-                      className="p-1 hover:bg-gray-200 rounded transition-colors"
-                    >
-                      <X className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
 
-                  {/* Notifications List */}
-                  <div className="overflow-y-auto flex-1">
-                    {loading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      </div>
-                    ) : notifications.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-12 px-4">
-                        <Bell className="w-12 h-12 text-gray-300 mb-3" />
-                        <p className="text-gray-600 font-medium">No notifications</p>
-                        <p className="text-sm text-gray-500 mt-1">You're all caught up!</p>
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-gray-100">
-                        {notifications.map((notification) => (
-                          <div
-                            key={notification.id}
-                            onClick={() => handleNotificationClick(notification)}
-                            className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                              !notification.isRead ? 'bg-blue-50' : ''
-                            }`}
-                          >
-                            <div className="flex items-start space-x-3">
-                              <div className="flex-shrink-0 mt-1">
-                                {getNotificationIcon(notification.type, notification.priority)}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between">
-                                  <p className={`text-sm font-medium ${
-                                    !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                                  }`}>
-                                    {notification.title}
-                                  </p>
-                                  {!notification.isRead && (
-                                    <span className="ml-2 w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></span>
-                                  )}
+                    {/* Notifications List */}
+                    <div className="overflow-y-auto flex-1">
+                      {loading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                      ) : notifications.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 px-4">
+                          <Bell className="w-12 h-12 text-gray-300 mb-3" />
+                          <p className="text-gray-600 font-medium">No notifications</p>
+                          <p className="text-sm text-gray-500 mt-1">You're all caught up!</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-gray-100">
+                          {notifications.map((notification) => (
+                            <div
+                              key={notification.id}
+                              onClick={() => handleNotificationClick(notification)}
+                              className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                !notification.isRead ? 'bg-blue-50' : ''
+                              }`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0 mt-1">
+                                  {getNotificationIcon(notification.type, notification.priority)}
                                 </div>
-                                <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                                  {notification.message}
-                                </p>
-                                <div className="flex items-center justify-between mt-2">
-                                  <span className="text-xs text-gray-500">
-                                    {formatDate(notification.createdAt)}
-                                  </span>
-                                  <button
-                                    onClick={(e) => deleteNotification(notification.id, e)}
-                                    className="p-1 hover:bg-gray-200 rounded transition-colors"
-                                  >
-                                    <Trash2 className="w-3 h-3 text-gray-500" />
-                                  </button>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between">
+                                    <p className={`text-sm font-medium ${
+                                      !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                                    }`}>
+                                      {notification.title}
+                                    </p>
+                                    {!notification.isRead && (
+                                      <span className="ml-2 w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></span>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                    {notification.message}
+                                  </p>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className="text-xs text-gray-500">
+                                      {formatDate(notification.createdAt)}
+                                    </span>
+                                    <button
+                                      onClick={(e) => deleteNotification(notification.id, e)}
+                                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                    >
+                                      <Trash2 className="w-3 h-3 text-gray-500" />
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    {notifications.length > 0 && (
+                      <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+                        <button
+                          onClick={() => {
+                            setShowNotifications(false);
+                            navigate('/dashboard/notifications');
+                          }}
+                          className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          View all notifications
+                        </button>
                       </div>
                     )}
                   </div>
-
-                  {/* Footer */}
-                  {notifications.length > 0 && (
-                    <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
-                      <button
-                        onClick={() => {
-                          setShowNotifications(false);
-                          navigate('/dashboard/notifications');
-                        }}
-                        className="w-full text-sm text-blue-600 hover:text-blue-700 font-medium"
-                      >
-                        View all notifications
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors duration-200">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">
-                {user?.firstName?.[0]}{user?.lastName?.[0]}
-              </span>
+                </>
+              )}
             </div>
-            <ChevronDown className="w-4 h-4 text-gray-500" />
+
+            <div className="flex items-center space-x-2 relative">
+              <div
+                className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center cursor-pointer"
+                onClick={() => setShowUserInfo((prev) => !prev)}
+              >
+                <span className="text-white font-semibold text-sm">
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </span>
+              </div>
+              <button
+                className="p-0 m-0 flex items-center"
+                onClick={() => setShowUserMenu((prev) => !prev)}
+                aria-label="Open user menu"
+              >
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </button>
+
+              {/* User Info Dropdown */}
+              {showUserInfo && (
+                <div className="absolute right-0 top-12 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4 min-w-[260px]">
+                  <h4 className="font-semibold text-gray-900 mb-2">Personal Information</h4>
+                  <div className="text-sm text-gray-700 space-y-1">
+                    <div><span className="font-medium">Name:</span> {user?.firstName} {user?.lastName}</div>
+                    <div><span className="font-medium">Email:</span> {user?.email}</div>
+                    <div><span className="font-medium">Role:</span> {user?.role}</div>
+                    {user?.panNumber && <div><span className="font-medium">PAN:</span> {user.panNumber}</div>}
+                    {user?.aadharNumber && <div><span className="font-medium">Aadhaar:</span> {user.aadharNumber}</div>}
+                    <div><span className="font-medium">Account Created:</span> {new Date(user?.createdAt || '').toLocaleDateString()}</div>
+                    {user?.lastLogin && <div><span className="font-medium">Last Login:</span> {new Date(user.lastLogin).toLocaleString()}</div>}
+                  </div>
+                  <button
+                    className="mt-3 w-full text-xs text-blue-600 hover:text-blue-700 font-medium border-t pt-2"
+                    onClick={() => setShowUserInfo(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+
+              {/* User Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute right-0 top-12 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-[120px]">
+                  <button
+                    className="w-full text-left px-3 py-2 text-sm bg-red-600 text-white hover:bg-red-700 rounded font-semibold"
+                    onClick={() => { logout(); setShowUserMenu(false); }}
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
   );
 };
 

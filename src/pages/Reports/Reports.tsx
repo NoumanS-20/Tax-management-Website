@@ -312,13 +312,13 @@ const Reports: React.FC = () => {
 
       const totalDocuments = documents.length;
       const approvedDocs = documents.filter((d: any) => d.status === 'approved').length;
-      const pendingDocs = documents.filter((d: any) => d.status === 'pending').length;
+  const submittedDocs = documents.filter((d: any) => d.status === 'pending').length;
 
       doc.text(`Total Documents: ${totalDocuments}`, margin + 10, yPosition);
       yPosition += 8;
       doc.text(`Approved: ${approvedDocs}`, margin + 10, yPosition);
       yPosition += 8;
-      doc.text(`Pending: ${pendingDocs}`, margin + 10, yPosition);
+  doc.text(`Submitted: ${submittedDocs}`, margin + 10, yPosition);
       yPosition += 15;
 
       // Footer
@@ -420,7 +420,7 @@ const Reports: React.FC = () => {
       csv += 'DOCUMENTS\n';
       csv += `Total Documents: ${documents.length}\n`;
       csv += `Approved: ${documents.filter(d => d.status === 'approved').length}\n`;
-      csv += `Pending: ${documents.filter(d => d.status === 'pending').length}\n`;
+  csv += `Submitted: ${documents.filter(d => d.status === 'pending').length}\n`;
       
       // Download CSV
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -635,7 +635,7 @@ const Reports: React.FC = () => {
       case 'approved':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'in-review':
-      case 'pending':
+  case 'pending':
         return <Clock className="w-4 h-4 text-yellow-600" />;
       case 'rejected':
         return <XCircle className="w-4 h-4 text-red-600" />;
@@ -650,7 +650,7 @@ const Reports: React.FC = () => {
       case 'approved':
         return 'bg-green-100 text-green-800';
       case 'in-review':
-      case 'pending':
+  case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
@@ -1020,11 +1020,11 @@ const Reports: React.FC = () => {
                 <div className="text-3xl font-bold text-yellow-600">
                   {documents.filter((d) => d.status === 'pending').length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">Pending</div>
+                <div className="text-sm text-gray-600 mt-1">Submitted</div>
               </div>
               <div className="p-4 bg-purple-50 rounded-lg text-center">
                 <div className="text-3xl font-bold text-purple-600">
-                  {(documents.reduce((sum, d) => sum + (d.fileSize || 0), 0) / 1024 / 1024).toFixed(2)}
+                  {(documents.reduce((sum, d) => sum + (d.size || 0), 0) / 1024 / 1024).toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">Total MB</div>
               </div>

@@ -186,6 +186,14 @@ const getTaxForm = async (req, res) => {
     console.log('getTaxForm called with ID:', id);
     console.log('User ID:', req.user._id);
 
+    // Validate ObjectId
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid tax form ID'
+      });
+    }
+
     const taxForm = await TaxForm.findOne({
       _id: id,
       userId: req.user._id

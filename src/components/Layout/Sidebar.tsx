@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -18,6 +18,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const userNavItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -102,7 +103,10 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
         
-        <button className="flex items-center space-x-3 w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 mb-2">
+        <button
+          className="flex items-center space-x-3 w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 mb-2"
+          onClick={() => navigate('/dashboard/guide')}
+        >
           <HelpCircle className="w-5 h-5" />
           <span>Help & Support</span>
         </button>
@@ -114,8 +118,8 @@ const Sidebar: React.FC = () => {
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
         </button>
-      </div>
     </div>
+  </div>
   );
 };
 

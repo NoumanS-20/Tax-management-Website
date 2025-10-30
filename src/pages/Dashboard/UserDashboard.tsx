@@ -319,7 +319,31 @@ const UserDashboard: React.FC = () => {
               {taxForms.length === 0 ? (
                 <Button 
                   className="w-full"
-                  onClick={() => window.location.href = '/dashboard/itr-forms/new'}
+                  onClick={async () => {
+                    try {
+                      // Example payload, adjust as needed for your form requirements
+                      const payload = {
+                        assessmentYear: `${new Date().getFullYear()}-${(new Date().getFullYear() + 1).toString().slice(-2)}`,
+                        financialYear: `${new Date().getFullYear() - 1}-${new Date().getFullYear().toString().slice(-2)}`,
+                        formType: 'ITR-1',
+                        personalInfo: {
+                          panNumber: 'ABCDE1234F' // Replace with user's PAN
+                        },
+                        income: {},
+                        deductions: {},
+                        exemptions: {}
+                      };
+                      const response = await apiService.createTaxForm(payload);
+                      if (response.success && response.data?.taxForm) {
+                        const formId = response.data.taxForm._id || response.data.taxForm.id;
+                        window.location.href = `/dashboard/itr-forms/${formId}/edit`;
+                      } else {
+                        toast.error(response.message || 'Failed to create tax form');
+                      }
+                    } catch (err: any) {
+                      toast.error(err.message || 'Error creating tax form');
+                    }
+                  }}
                 >
                   Start ITR Filing
                 </Button>

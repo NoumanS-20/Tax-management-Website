@@ -208,7 +208,10 @@ const refreshToken = async (req, res) => {
     res.json({
       success: true,
       message: 'Token refreshed successfully',
-      data: tokens
+      data: {
+        ...tokens,
+        user: user.toJSON()
+      }
     });
   } catch (error) {
     console.error('Token refresh error:', error);
