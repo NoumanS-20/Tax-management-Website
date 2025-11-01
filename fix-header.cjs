@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+const fs = require('fs');
+const path = require('path');
+
+const headerContent = `import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Bell, LogOut, ChevronDown, X, Trash2, AlertCircle, Mail, CheckCircle, Info } from 'lucide-react';
@@ -27,7 +30,7 @@ const Header = () => {
     try {
       const response = await fetch('/api/notifications', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': \`Bearer \${localStorage.getItem('token')}\`
         }
       });
       if (response.ok) {
@@ -43,10 +46,10 @@ const Header = () => {
 
   const handleNotificationClick = async (notification) => {
     try {
-      await fetch(`/api/notifications/${notification.id}/read`, {
+      await fetch(\`/api/notifications/\${notification.id}/read\`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': \`Bearer \${localStorage.getItem('token')}\`
         }
       });
       
@@ -62,10 +65,10 @@ const Header = () => {
   const handleDeleteNotification = async (id, e) => {
     e.stopPropagation();
     try {
-      await fetch(`/api/notifications/${id}`, {
+      await fetch(\`/api/notifications/\${id}\`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': \`Bearer \${localStorage.getItem('token')}\`
         }
       });
       setNotifications(notifications.filter(n => n.id !== id));
@@ -96,9 +99,9 @@ const Header = () => {
     const diffInDays = Math.floor(diffInMs / 86400000);
 
     if (diffInMins < 1) return 'Just now';
-    if (diffInMins < 60) return `${diffInMins}m ago`;
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInDays < 7) return `${diffInDays}d ago`;
+    if (diffInMins < 60) return \`\${diffInMins}m ago\`;
+    if (diffInHours < 24) return \`\${diffInHours}h ago\`;
+    if (diffInDays < 7) return \`\${diffInDays}d ago\`;
     return notificationDate.toLocaleDateString();
   };
 
@@ -130,7 +133,7 @@ const Header = () => {
                 <div className="absolute right-6 mt-80 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
                   <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900">
-                      Notifications {unreadCount > 0 && `(${unreadCount})`}
+                      Notifications {unreadCount > 0 && \`(\${unreadCount})\`}
                     </h3>
                     <button onClick={() => setShowNotifications(false)}>
                       <X className="w-5 h-5 text-gray-500 hover:text-gray-700" />
@@ -146,9 +149,9 @@ const Header = () => {
                       notifications.map((notification) => (
                         <div
                           key={notification.id}
-                          className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
+                          className={\`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer \${
                             !notification.read ? 'bg-blue-50' : ''
-                          }`}
+                          }\`}
                           onClick={() => handleNotificationClick(notification)}
                         >
                           <div className="flex items-start space-x-3">
@@ -246,3 +249,31 @@ const Header = () => {
 };
 
 export default Header;
+`;
+
+const filePath = path.join(__dirname, 'src', 'components', 'Layout', 'Header.tsx');
+
+try {
+  // Delete the file first
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    console.log('Deleted existing Header.tsx');
+  }
+  
+  // Wait a moment
+  setTimeout(() => {
+    // Write new file with UTF-8 encoding (no BOM)
+    fs.writeFileSync(filePath, headerContent, { encoding: 'utf8' });
+    console.log('Header.tsx created successfully with UTF-8 encoding');
+    
+    // Verify the file
+    const content = fs.readFileSync(filePath, 'utf8');
+    if (content.startsWith('import React')) {
+      console.log('✓ File verification successful - starts correctly');
+    } else {
+      console.log('✗ File verification failed - may be corrupted');
+    }
+  }, 1000);
+} catch (error) {
+  console.error('Error:', error.message);
+}
