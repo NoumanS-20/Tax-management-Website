@@ -9,6 +9,7 @@
     "dev:server": "cd server && npm install && nodemon app.js",
     "dev:full": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "build": "vite build",
+    "vercel-build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
