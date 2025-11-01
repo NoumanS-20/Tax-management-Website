@@ -1,14 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Bell, LogOut, ChevronDown, X, Trash2, AlertCircle, Mail, CheckCircle, Info } from 'lucide-react';
+
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  actionUrl?: string;
+}
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
@@ -41,7 +51,7 @@ const Header = () => {
     }
   };
 
-  const handleNotificationClick = async (notification) => {
+  const handleNotificationClick = async (notification: Notification) => {
     try {
       await fetch(`/api/notifications/${notification.id}/read`, {
         method: 'PATCH',
@@ -59,7 +69,7 @@ const Header = () => {
     }
   };
 
-  const handleDeleteNotification = async (id, e) => {
+  const handleDeleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await fetch(`/api/notifications/${id}`, {
@@ -74,7 +84,7 @@ const Header = () => {
     }
   };
 
-  const getNotificationIcon = (type) => {
+  const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'tax_deadline':
         return <AlertCircle className="w-5 h-5 text-red-500" />;
@@ -87,7 +97,7 @@ const Header = () => {
     }
   };
 
-  const getTimeAgo = (date) => {
+  const getTimeAgo = (date: string) => {
     const now = new Date();
     const notificationDate = new Date(date);
     const diffInMs = now.getTime() - notificationDate.getTime();
