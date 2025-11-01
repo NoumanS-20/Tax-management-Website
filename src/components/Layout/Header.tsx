@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ÿþimport React, { useState, useEffect } from 'react';
 import { Bell, Search, ChevronDown, X, Trash2, AlertCircle, Mail, Info, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -31,10 +31,10 @@ const Header: React.FC = () => {
     fetchNotifications();
     // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    return (=> clearInterval(interval);
   }, []);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = async (=> {
     try {
       setLoading(true);
       const response = await apiService.getNotifications({ limit: 5 });
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
         setNotifications(response.data.notifications);
         setUnreadCount(response.data.unreadCount);
       }
-    } catch (error: any) {
+    } catch (error: any{
       // Silently fail to avoid spam
       console.error('Failed to fetch notifications:', error);
     } finally {
@@ -50,7 +50,7 @@ const Header: React.FC = () => {
     }
   };
 
-  const markAsRead = async (id: string) => {
+  const markAsRead = async (id: string=> {
     try {
       await apiService.markNotificationAsRead(id);
       setNotifications(prev =>
@@ -59,7 +59,7 @@ const Header: React.FC = () => {
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error: any) {
+    } catch (error: any{
       toast.error('Failed to mark as read');
     }
   };
@@ -83,7 +83,7 @@ const Header: React.FC = () => {
       'text-gray-600'
     }`;
 
-    switch (type) {
+    switch (type{
       case 'tax_deadline':
       case 'payment_due':
         return <AlertCircle className={iconClass} />;
@@ -100,11 +100,11 @@ const Header: React.FC = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor((now.getTime(- date.getTime()/ (1000 * 60 * 60));
 
     if (diffInHours < 1) return 'Just now';
     if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInHours < 48) return 'Yesterday';
+    if (diffInHours < 48return 'Yesterday';
     return date.toLocaleDateString();
   };
 
@@ -119,7 +119,7 @@ const Header: React.FC = () => {
       navigate(notification.metadata.actionUrl);
     } else if (notification.metadata?.taxFormId) {
       navigate(`/dashboard/itr-forms/${notification.metadata.taxFormId}`);
-    } else if (notification.metadata?.documentId) {
+    } else if (notification.metadata?.documentId{
       navigate('/dashboard/documents');
     }
   };
@@ -144,7 +144,7 @@ const Header: React.FC = () => {
             {/* Notifications Dropdown */}
             <div className="relative">
               <button
-                onClick={() => setShowNotifications(!showNotifications)}
+                onClick={(=> setShowNotifications(!showNotifications)}
                 className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
               >
                 <Bell className="w-5 h-5" />
@@ -175,7 +175,7 @@ const Header: React.FC = () => {
                         )}
                       </div>
                       <button
-                        onClick={() => setShowNotifications(false)}
+                        onClick={(=> setShowNotifications(false)}
                         className="p-1 hover:bg-gray-200 rounded transition-colors"
                       >
                         <X className="w-4 h-4 text-gray-600" />
@@ -188,7 +188,7 @@ const Header: React.FC = () => {
                         <div className="flex items-center justify-center py-8">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         </div>
-                      ) : notifications.length === 0 ? (
+                      : notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 px-4">
                           <Bell className="w-12 h-12 text-gray-300 mb-3" />
                           <p className="text-gray-600 font-medium">No notifications</p>
@@ -196,7 +196,7 @@ const Header: React.FC = () => {
                         </div>
                       ) : (
                         <div className="divide-y divide-gray-100">
-                          {notifications.map((notification) => (
+                          {notifications.map((notification=> (
                             <div
                               key={notification.id}
                               onClick={() => handleNotificationClick(notification)}
@@ -263,7 +263,7 @@ const Header: React.FC = () => {
             <div className="flex items-center space-x-2 relative">
               <div
                 className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center cursor-pointer"
-                onClick={() => setShowUserInfo((prev) => !prev)}
+                onClick={(=> setShowUserInfo((prev=> !prev)}
               >
                 <span className="text-white font-semibold text-sm">
                   {user?.firstName?.[0]}{user?.lastName?.[0]}
@@ -271,7 +271,7 @@ const Header: React.FC = () => {
               </div>
               <button
                 className="p-0 m-0 flex items-center"
-                onClick={() => setShowUserMenu((prev) => !prev)}
+                onClick={(=> setShowUserMenu((prev=> !prev)}
                 aria-label="Open user menu"
               >
                 <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -318,4 +318,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default Header;  
