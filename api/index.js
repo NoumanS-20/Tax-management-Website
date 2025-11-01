@@ -120,5 +120,5 @@ const connectDB = async () => {
 // Connect to MongoDB
 connectDB();
 
+// Export as serverless function handler for Vercel
 module.exports = app;
-

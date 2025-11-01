@@ -1024,7 +1024,7 @@ const Reports: React.FC = () => {
               </div>
               <div className="p-4 bg-purple-50 rounded-lg text-center">
                 <div className="text-3xl font-bold text-purple-600">
-                  {(documents.reduce((sum, d) => sum + (d.size || 0), 0) / 1024 / 1024).toFixed(2)}
+                  {(documents.reduce((sum, d) => sum + (d.fileSize || 0), 0) / 1024 / 1024).toFixed(2)}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">Total MB</div>
               </div>

@@ -1,0 +1,15 @@
+node_modules
+.git
+.env
+.env.local
+server/node_modules
+server/.env
+server/uploads
+uploads
+*.log
+.DS_Store
+tests
+*.test.js
+playwright-report
+test-results
+coverage
