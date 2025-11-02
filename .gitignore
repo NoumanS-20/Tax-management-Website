@@ -144,3 +144,4 @@ playwright/.cache/
 # Local development
 .local/
 local/
+.vercel
