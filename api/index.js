@@ -55,12 +55,12 @@ app.use('/documents/upload', fileUploadSecurity);
 app.use('/uploads', express.static(path.join(__dirname, '../server/uploads')));
 app.use('/public', express.static(path.join(__dirname, '../server/public')));
 
-// API Routes - without /api prefix since Vercel adds it
-app.use('/auth', authRoutes);
-app.use('/tax', taxRoutes);
-app.use('/documents', documentRoutes);
-app.use('/notifications', notificationRoutes);
-app.use('/contact', contactRoutes);
+// API Routes - Vercel routes /api/* to this file, so we need to handle the full path
+app.use('/api/auth', authRoutes);
+app.use('/api/tax', taxRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/contact', contactRoutes);
 
 // ITR Guide download endpoint
 app.get('/download-guide', (req, res) => {
