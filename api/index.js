@@ -101,24 +101,40 @@ app.use('*', (req, res) => {
 let isConnected = false;
 
 const connectDB = async () => {
-  if (isConnected) {
-    console.log('✅ MongoDB already connected');
+  if (isConnected && mongoose.connection.readyState === 1) {
     return;
   }
 
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/swifttax';
-    await mongoose.connect(mongoUri);
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is not set');
+    }
+
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    
     isConnected = true;
     console.log('✅ Connected to MongoDB');
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
+    console.error('❌ MongoDB connection error:', error);
     isConnected = false;
+    throw error;
   }
 };
 
 // Export as serverless function handler for Vercel
 module.exports = async (req, res) => {
-  await connectDB();
-  return app(req, res);
+  try {
+    await connectDB();
+    return app(req, res);
+  } catch (error) {
+    console.error('Handler error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server initialization failed',
+      error: error.message
+    });
+  }
 };
