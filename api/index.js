@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const { URL } = require('url');
 require('dotenv').config();
 
 // Import routes
@@ -48,6 +49,18 @@ app.use('/documents/upload', uploadLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log('=== REQUEST DEBUG ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Path:', req.path);
+  console.log('Original URL:', req.originalUrl);
+  console.log('Base URL:', req.baseUrl);
+  console.log('====================');
+  next();
+});
+
 // File upload security
 app.use('/documents/upload', fileUploadSecurity);
 
@@ -55,14 +68,58 @@ app.use('/documents/upload', fileUploadSecurity);
 app.use('/uploads', express.static(path.join(__dirname, '../server/uploads')));
 app.use('/public', express.static(path.join(__dirname, '../server/public')));
 
-// API Routes - Vercel routes /api/* to this file, so we need to handle the full path
+// API Routes - Mount at both /api and root to handle Vercel routing variations
 app.use('/api/auth', authRoutes);
 app.use('/api/tax', taxRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/contact', contactRoutes);
 
-// ITR Guide download endpoint
+// Also mount without /api prefix in case Vercel strips it
+app.use('/auth', authRoutes);
+app.use('/tax', taxRoutes);
+app.use('/documents', documentRoutes);
+app.use('/notifications', notificationRoutes);
+app.use('/contact', contactRoutes);
+
+// Debug endpoint - both paths
+app.get('/api/debug', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Debug endpoint hit with /api prefix',
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url
+  });
+});
+
+app.get('/debug', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Debug endpoint hit without /api prefix',
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url
+  });
+});
+
+
+// ITR Guide download endpoint - both paths
+app.get('/api/download-guide', (req, res) => {
+  const filePath = path.join(__dirname, '../server/public', 'ITR-Guide.pdf');
+  res.download(filePath, 'Income-Tax-Guide-for-India.pdf', (err) => {
+    if (err) {
+      console.error('Error downloading guide:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to download ITR guide'
+      });
+    }
+  });
+});
+
 app.get('/download-guide', (req, res) => {
   const filePath = path.join(__dirname, '../server/public', 'ITR-Guide.pdf');
   res.download(filePath, 'Income-Tax-Guide-for-India.pdf', (err) => {
@@ -76,7 +133,16 @@ app.get('/download-guide', (req, res) => {
   });
 });
 
-// Health check
+// Health check - both paths
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'SwiftTax API is running (with /api prefix)',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ 
     success: true, 
@@ -127,6 +193,30 @@ const connectDB = async () => {
 // Export as serverless function handler for Vercel
 module.exports = async (req, res) => {
   try {
+    // Normalize rewritten /api paths from Vercel so Express sees the original route
+    try {
+      const host = req.headers.host || 'localhost';
+      const parsedUrl = new URL(req.url, `https://${host}`);
+      if (parsedUrl.pathname === '/api/index.js' && parsedUrl.searchParams.has('path')) {
+        const originalPath = parsedUrl.searchParams.get('path');
+        const normalizedPath = originalPath.startsWith('/') ? originalPath : `/${originalPath}`;
+        parsedUrl.searchParams.delete('path');
+        const remainingQuery = parsedUrl.searchParams.toString();
+        req.url = remainingQuery ? `${normalizedPath}?${remainingQuery}` : normalizedPath;
+        req.originalUrl = req.url;
+        req._parsedUrl = undefined;
+      }
+    } catch (rewriteError) {
+      console.error('Failed to normalize request path:', rewriteError);
+    }
+
+    // Log the incoming request for debugging
+    console.log('Incoming request:', {
+      method: req.method,
+      url: req.url,
+      path: req.path,
+      originalUrl: req.originalUrl
+    });
     await connectDB();
     return app(req, res);
   } catch (error) {
