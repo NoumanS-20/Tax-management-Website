@@ -26,6 +26,7 @@ const {
 } = require('../server/middleware/security');
 
 const app = express();
+app.set('trust proxy', 1);
 
 const corsConfig = {
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
