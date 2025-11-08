@@ -27,18 +27,21 @@ const {
 
 const app = express();
 
+const corsConfig = {
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 // Security middleware
 app.use(securityHeaders);
 app.use(sanitizeData);
 app.use(requestLogger);
 
 // CORS - updated for Vercel
-app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors(corsConfig));
+app.options('*', cors(corsConfig));
 
 // Rate limiting
 app.use(generalLimiter);
