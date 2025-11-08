@@ -17,6 +17,7 @@
     "@react-three/drei": "^9.56.13",
     "@react-three/fiber": "^8.13.7",
     "@types/three": "^0.160.0",
+    "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",

@@ -1,4 +1,28 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const resolveApiBaseUrl = () => {
+  const raw = import.meta.env.VITE_API_URL;
+  if (!raw) {
+    return '/api';
+  }
+
+  const trimmed = raw.trim();
+  const cleaned = trimmed.startsWith('VITE_API_URL=')
+    ? trimmed.replace(/^VITE_API_URL=/, '').trim()
+    : trimmed;
+
+  if (!cleaned) {
+    return '/api';
+  }
+
+  if (cleaned.startsWith('http://') || cleaned.startsWith('https://')) {
+    return cleaned.replace(/\/+$/, '');
+  }
+
+  const prefixed = cleaned.startsWith('/') ? cleaned : `/${cleaned}`;
+  const normalized = prefixed.replace(/\/+$/, '') || '/api';
+  return normalized === '' ? '/api' : normalized;
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 // Add request timeout and better error handling
 const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout = 10000) => {
