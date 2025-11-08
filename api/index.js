@@ -214,13 +214,25 @@ module.exports = async (req, res) => {
       console.error('Failed to normalize request path:', rewriteError);
     }
 
+    // Ensure body is parsed for Vercel serverless
+    if (req.body && typeof req.body === 'string') {
+      try {
+        req.body = JSON.parse(req.body);
+      } catch (e) {
+        console.error('Failed to parse request body:', e);
+      }
+    }
+
     // Log the incoming request for debugging
     console.log('Incoming request:', {
       method: req.method,
       url: req.url,
       path: req.path,
-      originalUrl: req.originalUrl
+      originalUrl: req.originalUrl,
+      bodyType: typeof req.body,
+      hasBody: !!req.body
     });
+    
     await connectDB();
     return app(req, res);
   } catch (error) {
