@@ -170,16 +170,17 @@ User.init({
   ],
   hooks: {
     // Hash password before creating user
+    // Using cost 8 for serverless (fast enough for Vercel's 10s timeout)
     beforeCreate: async (user) => {
       if (user.password) {
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(8);
         user.password = await bcrypt.hash(user.password, salt);
       }
     },
     // Hash password before updating if it was changed
     beforeUpdate: async (user) => {
       if (user.changed('password')) {
-        const salt = await bcrypt.genSalt(10);
+        const salt = await bcrypt.genSalt(8);
         user.password = await bcrypt.hash(user.password, salt);
       }
     }
