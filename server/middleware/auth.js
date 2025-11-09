@@ -20,7 +20,9 @@ const auth = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     console.log('Token decoded successfully:', { userId: decoded.userId });
     
-    const user = await User.findById(decoded.userId).select('-password -refreshTokens');
+    const user = await User.findByPk(decoded.userId, {
+      attributes: { exclude: ['password'] }
+    });
     
     if (!user || !user.isActive) {
       console.log('Auth failed: User not found or inactive', { userId: decoded.userId, userFound: !!user, isActive: user?.isActive });

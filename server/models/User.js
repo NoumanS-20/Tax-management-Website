@@ -1,112 +1,189 @@
-const mongoose = require('mongoose');
+const { DataTypes, Model } = require('sequelize');
 const bcrypt = require('bcryptjs');
+const { sequelize } = require('../config/database');
 
-const userSchema = new mongoose.Schema({
+class User extends Model {
+  // Instance method to compare passwords
+  async comparePassword(candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
+  }
+
+  // Remove sensitive data from JSON output
+  toJSON() {
+    const values = { ...this.get() };
+    delete values.password;
+    return values;
+  }
+}
+
+User.init({
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   email: {
-    type: String,
-    required: [true, 'Email is required'],
+    type: DataTypes.STRING(255),
+    allowNull: false,
     unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    validate: {
+      isEmail: {
+        msg: 'Please enter a valid email'
+      }
+    },
+    set(value) {
+      this.setDataValue('email', value.toLowerCase().trim());
+    }
   },
   password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters long']
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    validate: {
+      len: {
+        args: [6, 255],
+        msg: 'Password must be at least 6 characters long'
+      }
+    }
   },
   firstName: {
-    type: String,
-    required: [true, 'First name is required'],
-    trim: true,
-    maxlength: [50, 'First name cannot exceed 50 characters']
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      len: {
+        args: [1, 50],
+        msg: 'First name cannot exceed 50 characters'
+      }
+    },
+    set(value) {
+      this.setDataValue('firstName', value.trim());
+    }
   },
   lastName: {
-    type: String,
-    required: [true, 'Last name is required'],
-    trim: true,
-    maxlength: [50, 'Last name cannot exceed 50 characters']
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      len: {
+        args: [1, 50],
+        msg: 'Last name cannot exceed 50 characters'
+      }
+    },
+    set(value) {
+      this.setDataValue('lastName', value.trim());
+    }
   },
   role: {
-    type: String,
-    enum: ['user', 'admin', 'accountant'],
-    default: 'user'
+    type: DataTypes.ENUM('user', 'admin', 'accountant'),
+    defaultValue: 'user'
   },
   panNumber: {
-    type: String,
-    uppercase: true,
-    trim: true,
-    match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Please enter a valid PAN number']
+    type: DataTypes.STRING(10),
+    unique: true,
+    allowNull: true,
+    validate: {
+      is: {
+        args: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+        msg: 'Please enter a valid PAN number'
+      }
+    },
+    set(value) {
+      if (value) {
+        this.setDataValue('panNumber', value.toUpperCase().trim());
+      }
+    }
   },
   aadharNumber: {
-    type: String,
-    trim: true,
-    match: [/^\d{4}-\d{4}-\d{4}$/, 'Please enter a valid Aadhaar number (XXXX-XXXX-XXXX)']
+    type: DataTypes.STRING(14),
+    allowNull: true,
+    validate: {
+      is: {
+        args: /^\d{4}-\d{4}-\d{4}$/,
+        msg: 'Please enter a valid Aadhaar number (XXXX-XXXX-XXXX)'
+      }
+    },
+    set(value) {
+      if (value) {
+        this.setDataValue('aadharNumber', value.trim());
+      }
+    }
   },
   phone: {
-    type: String,
-    trim: true,
-    match: [/^[6-9]\d{9}$/, 'Please enter a valid Indian mobile number']
+    type: DataTypes.STRING(10),
+    allowNull: true,
+    validate: {
+      is: {
+        args: /^[6-9]\d{9}$/,
+        msg: 'Please enter a valid Indian mobile number'
+      }
+    },
+    set(value) {
+      if (value) {
+        this.setDataValue('phone', value.trim());
+      }
+    }
   },
   dateOfBirth: {
-    type: Date
+    type: DataTypes.DATEONLY,
+    allowNull: true
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    pincode: {
-      type: String,
-      match: [/^\d{6}$/, 'Please enter a valid 6-digit pincode']
+  addressStreet: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  addressCity: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  addressState: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  addressPincode: {
+    type: DataTypes.STRING(6),
+    allowNull: true,
+    validate: {
+      is: {
+        args: /^\d{6}$/,
+        msg: 'Please enter a valid 6-digit pincode'
+      }
     }
   },
   isEmailVerified: {
-    type: Boolean,
-    default: false
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
   isActive: {
-    type: Boolean,
-    default: true
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
   lastLogin: {
-    type: Date
-  },
-  refreshTokens: [{
-    token: String,
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      expires: 604800 // 7 days
-    }
-  }]
+    type: DataTypes.DATE,
+    allowNull: true
+  }
 }, {
-  timestamps: true
-});
-
-// Hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
-  try {
-    const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
+  sequelize,
+  modelName: 'User',
+  tableName: 'users',
+  timestamps: true,
+  indexes: [
+    { unique: true, fields: ['email'] },
+    { unique: true, fields: ['panNumber'], where: { panNumber: { [sequelize.Sequelize.Op.ne]: null } } }
+  ],
+  hooks: {
+    // Hash password before creating user
+    beforeCreate: async (user) => {
+      if (user.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+    // Hash password before updating if it was changed
+    beforeUpdate: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    }
   }
 });
 
-// Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-// Remove password from JSON output
-userSchema.methods.toJSON = function() {
-  const userObject = this.toObject();
-  delete userObject.password;
-  delete userObject.refreshTokens;
-  return userObject;
-};
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;

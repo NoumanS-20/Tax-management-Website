@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const RefreshToken = require('../models/RefreshToken');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -27,12 +28,17 @@ const generateTokens = (userId) => {
 
 // Register new user
 const register = async (req, res) => {
+  const timings = { start: Date.now() };
   try {
-    console.log('Registration attempt:', { email: req.body.email, firstName: req.body.firstName });
+    console.log('[TIMING] Registration start');
     const { email, password, firstName, lastName, panNumber, phone } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    timings.beforeEmailCheck = Date.now();
+    const existingUser = await User.findOne({ where: { email } });
+    timings.afterEmailCheck = Date.now();
+    console.log(`[TIMING] Email check took ${timings.afterEmailCheck - timings.beforeEmailCheck}ms`);
+    
     if (existingUser) {
       console.log('User already exists:', email);
       return res.status(400).json({
@@ -43,7 +49,11 @@ const register = async (req, res) => {
 
     // Check if PAN number already exists (if provided)
     if (panNumber) {
-      const existingPAN = await User.findOne({ panNumber });
+      timings.beforePANCheck = Date.now();
+      const existingPAN = await User.findOne({ where: { panNumber } });
+      timings.afterPANCheck = Date.now();
+      console.log(`[TIMING] PAN check took ${timings.afterPANCheck - timings.beforePANCheck}ms`);
+      
       if (existingPAN) {
         return res.status(400).json({
           success: false,
@@ -52,8 +62,9 @@ const register = async (req, res) => {
       }
     }
 
-    // Create new user
-    const user = new User({
+    // Create new user (password hashing happens in beforeCreate hook)
+    timings.beforeUserCreate = Date.now();
+    const user = await User.create({
       email,
       password,
       firstName,
@@ -61,18 +72,27 @@ const register = async (req, res) => {
       panNumber,
       phone
     });
-
-    await user.save();
-    console.log('User saved successfully:', user.email);
+    timings.afterUserCreate = Date.now();
+    console.log(`[TIMING] User.create() (including bcrypt) took ${timings.afterUserCreate - timings.beforeUserCreate}ms`);
 
     // Generate tokens
-    const { accessToken, refreshToken } = generateTokens(user._id);
+    timings.beforeTokens = Date.now();
+    const { accessToken, refreshToken } = generateTokens(user.id);
+    timings.afterTokens = Date.now();
+    console.log(`[TIMING] Token generation took ${timings.afterTokens - timings.beforeTokens}ms`);
 
-    // Save refresh token to user
-    user.refreshTokens.push({ token: refreshToken });
-    await user.save();
+    // Save refresh token
+    timings.beforeRefreshSave = Date.now();
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user.id
+    });
+    timings.afterRefreshSave = Date.now();
+    console.log(`[TIMING] Refresh token save took ${timings.afterRefreshSave - timings.beforeRefreshSave}ms`);
 
-    console.log('Registration successful for:', user.email);
+    timings.end = Date.now();
+    console.log(`[TIMING] Total registration time: ${timings.end - timings.start}ms`);
+    
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -83,13 +103,25 @@ const register = async (req, res) => {
       }
     });
   } catch (error) {
+    timings.error = Date.now();
+    console.error(`[TIMING] Error occurred at ${timings.error - timings.start}ms`);
     console.error('Registration error:', error);
     console.error('Error details:', {
       name: error.name,
       message: error.message,
-      code: error.code,
+      errors: error.errors,
       stack: error.stack
     });
+    
+    // Handle Sequelize validation errors
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const messages = error.errors.map(e => e.message);
+      return res.status(400).json({
+        success: false,
+        message: messages.join(', ')
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: error.message || 'Registration failed'
@@ -110,8 +142,8 @@ const login = async (req, res) => {
       });
     }
 
-    // Find user by email
-    const user = await User.findOne({ email }).select('+password');
+    // Find user by email (Sequelize doesn't hide password by default, we need to fetch it)
+    const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -127,7 +159,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Verify password
+    // Verify password (password is included in the fetched user)
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -137,21 +169,23 @@ const login = async (req, res) => {
     }
 
     // Generate tokens
-    const { accessToken, refreshToken } = generateTokens(user._id);
+    const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Save refresh token to user
-    user.refreshTokens.push({ token: refreshToken });
+    // Save refresh token
+    await RefreshToken.create({
+      token: refreshToken,
+      userId: user.id
+    });
+    
+    // Update last login
     user.lastLogin = new Date();
     await user.save();
-
-    // Remove password from response
-    const userResponse = user.toJSON();
 
     res.json({
       success: true,
       message: 'Login successful',
       data: {
-        user: userResponse,
+        user,
         accessToken,
         refreshToken
       }
@@ -166,7 +200,7 @@ const login = async (req, res) => {
 };
 
 // Refresh token
-const refreshToken = async (req, res) => {
+const refreshTokenHandler = async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -178,8 +212,33 @@ const refreshToken = async (req, res) => {
     }
 
     // Verify refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    const user = await User.findById(decoded.userId);
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+    
+    // Check if token exists in database
+    const tokenRecord = await RefreshToken.findOne({ 
+      where: { 
+        token: refreshToken,
+        userId: decoded.userId 
+      } 
+    });
+
+    if (!tokenRecord) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    // Check if token is expired
+    if (new Date() > tokenRecord.expiresAt) {
+      await tokenRecord.destroy();
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token expired'
+      });
+    }
+
+    const user = await User.findByPk(decoded.userId);
 
     if (!user || !user.isActive) {
       return res.status(401).json({
@@ -188,29 +247,22 @@ const refreshToken = async (req, res) => {
       });
     }
 
-    // Check if refresh token exists in user's tokens
-    const tokenExists = user.refreshTokens.some(tokenObj => tokenObj.token === refreshToken);
-    if (!tokenExists) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid refresh token'
-      });
-    }
-
     // Generate new tokens
-    const tokens = generateTokens(user._id);
+    const tokens = generateTokens(user.id);
 
-    // Remove old refresh token and add new one
-    user.refreshTokens = user.refreshTokens.filter(tokenObj => tokenObj.token !== refreshToken);
-    user.refreshTokens.push({ token: tokens.refreshToken });
-    await user.save();
+    // Delete old refresh token and create new one
+    await tokenRecord.destroy();
+    await RefreshToken.create({
+      token: tokens.refreshToken,
+      userId: user.id
+    });
 
     res.json({
       success: true,
       message: 'Token refreshed successfully',
       data: {
         ...tokens,
-        user: user.toJSON()
+        user
       }
     });
   } catch (error) {
@@ -230,8 +282,11 @@ const logout = async (req, res) => {
 
     if (refreshToken) {
       // Remove specific refresh token
-      await User.findByIdAndUpdate(user._id, {
-        $pull: { refreshTokens: { token: refreshToken } }
+      await RefreshToken.destroy({
+        where: {
+          token: refreshToken,
+          userId: user.id
+        }
       });
     }
 
@@ -267,7 +322,7 @@ const getProfile = async (req, res) => {
 module.exports = {
   register,
   login,
-  refreshToken,
+  refreshToken: refreshTokenHandler,
   logout,
   getProfile
 };
