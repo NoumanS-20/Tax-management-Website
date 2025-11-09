@@ -1,67 +1,75 @@
-# MySQL Database Setup for Tax Management Website
+# PostgreSQL Database Setup for Tax Management Website
 
-## Option 1: Railway (Recommended - Easiest)
+## Neon PostgreSQL (100% FREE - Recommended)
 
-1. Go to https://railway.app/
-2. Click "Start a New Project"
-3. Select "Provision MySQL"
-4. Once created, click on the MySQL service
-5. Go to "Variables" tab
-6. Copy the `DATABASE_URL` value (it looks like: `mysql://root:password@containers-us-west-123.railway.app:6543/railway`)
-7. Use this URL for your `DATABASE_URL` environment variable
+Neon is a serverless PostgreSQL platform that's completely free and works perfectly with Vercel.
 
-## Option 2: PlanetScale (Good but requires credit card for new accounts)
+### Setup Steps:
 
-1. Go to https://planetscale.com/
-2. Create a free account
-3. Create a new database
-4. Get the connection string from the dashboard
-5. Use this URL for your `DATABASE_URL` environment variable
-
-## Option 3: Vercel Postgres (Good integration with Vercel)
-
-1. Go to your Vercel dashboard
-2. Go to Storage tab
-3. Create a new Postgres database
-4. Get the connection string
-5. Note: You'll need to adjust the sequelize config slightly for Postgres
+1. **Go to https://neon.tech/**
+2. **Sign up with GitHub** (free account, no credit card required)
+3. **Create a new project:**
+   - Click "Create a project"
+   - Choose a project name (e.g., "tax-management")
+   - Select region closest to your Vercel deployment (usually US East)
+   - Click "Create project"
+4. **Get your connection string:**
+   - After project is created, you'll see the connection details
+   - Copy the "Connection string" - it looks like:
+     ```
+     postgresql://username:password@ep-region-name-123456.us-east-2.aws.neon.tech/dbname?sslmode=require
+     ```
+5. **Use this connection string for DATABASE_URL**
 
 ## Setting up the DATABASE_URL in Vercel
 
-Once you have your MySQL connection string:
+Once you have your Neon PostgreSQL connection string:
 
 ```bash
-# Remove old MongoDB variable
+# Remove old database variables (if any)
 vercel env rm MONGODB_URI production
+vercel env rm DATABASE_URL production
 
-# Add new MySQL variable
+# Add new PostgreSQL variable
 vercel env add DATABASE_URL production
-# Paste your MySQL connection string when prompted
+# Paste your Neon connection string when prompted
 
-# Also add to development if testing locally
+# Also add to development
 vercel env add DATABASE_URL development
+# Paste the same connection string
 ```
 
 ## Connection String Format
 
-Railway/MySQL format:
+Neon PostgreSQL format:
 ```
-mysql://username:password@host:port/database
+postgresql://username:password@host/database?sslmode=require
 ```
 
 Example:
 ```
-mysql://root:ABCdefGHI123@containers-us-west-56.railway.app:7204/railway
+postgresql://myuser:abc123xyz@ep-cool-rain-123456.us-east-2.aws.neon.tech/neondb?sslmode=require
 ```
+
+## Why Neon?
+
+✅ **100% Free** - No credit card required, generous free tier
+✅ **Serverless** - Auto-scales, auto-pauses when not in use
+✅ **Fast** - Optimized for serverless/edge deployments
+✅ **Perfect for Vercel** - Both are serverless platforms
+✅ **PostgreSQL** - Industry-standard, reliable, feature-rich
+✅ **Instant** - Database ready in seconds
 
 ## Next Steps
 
-1. Get your DATABASE_URL from Railway (or another provider)
-2. Update Vercel environment variables
-3. Deploy the updated code
-4. Test user registration
+1. Create your Neon account and project (takes 2 minutes)
+2. Copy your connection string
+3. Update Vercel environment variables (commands above)
+4. Deploy the updated code: `vercel --prod`
+5. Test user registration
 
 The application will automatically:
-- Connect to MySQL instead of MongoDB
+- Connect to PostgreSQL instead of MongoDB/MySQL
 - Create the necessary tables on first run
-- Handle all database operations with the new MySQL backend
+- Handle all database operations with PostgreSQL
+

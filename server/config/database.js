@@ -1,11 +1,11 @@
 const { Sequelize } = require('sequelize');
 
-// Database connection configuration for MySQL
-const sequelize = new Sequelize(process.env.DATABASE_URL || 'mysql://root:password@localhost:3306/taxmanagement', {
-  dialect: 'mysql',
+// Database connection configuration for PostgreSQL (Neon)
+const sequelize = new Sequelize(process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/taxmanagement', {
+  dialect: 'postgres',
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
   
-  // Optimized for serverless (Vercel)
+  // Optimized for serverless (Vercel + Neon)
   pool: {
     max: 2,          // Maximum number of connections (low for serverless)
     min: 0,          // Minimum connections
@@ -15,11 +15,11 @@ const sequelize = new Sequelize(process.env.DATABASE_URL || 'mysql://root:passwo
   },
   
   dialectOptions: {
-    connectTimeout: 5000,  // 5 seconds timeout for connection
     ssl: process.env.NODE_ENV === 'production' ? {
       require: true,
       rejectUnauthorized: false
-    } : false
+    } : false,
+    connectTimeout: 5000,  // 5 seconds timeout for connection
   },
   
   // Retry logic
@@ -45,10 +45,10 @@ const sequelize = new Sequelize(process.env.DATABASE_URL || 'mysql://root:passwo
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ MySQL database connection established successfully');
+    console.log('✅ PostgreSQL database connection established successfully');
     return true;
   } catch (error) {
-    console.error('❌ Unable to connect to MySQL database:', error.message);
+    console.error('❌ Unable to connect to PostgreSQL database:', error.message);
     return false;
   }
 };

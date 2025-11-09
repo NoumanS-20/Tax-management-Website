@@ -172,7 +172,7 @@ app.get('/api/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     database: {
-      type: 'MySQL',
+      type: 'PostgreSQL',
       status: dbStatus,
       queryTime: `${dbTime}ms`
     },
@@ -207,7 +207,7 @@ app.get('/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     database: {
-      type: 'MySQL',
+      type: 'PostgreSQL',
       status: dbStatus,
       queryTime: `${dbTime}ms`
     },
@@ -253,7 +253,7 @@ const connectDB = async () => {
     
     const connectTime = Date.now() - startTime;
     isConnected = true;
-    console.log(`✅ Connected to MySQL database in ${connectTime}ms`);
+    console.log(`✅ Connected to PostgreSQL database in ${connectTime}ms`);
   } catch (error) {
     const errorTime = Date.now() - startTime;
     console.error(`❌ MySQL connection error after ${errorTime}ms:`, error);
