@@ -244,12 +244,14 @@ const connectDB = async () => {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
-    console.log('[TIMING] Starting MySQL connection...');
+    console.log('[TIMING] Starting PostgreSQL connection...');
     await sequelize.authenticate();
     
-    // Sync models (create tables if they don't exist)
-    // In production, use { alter: false } or migrations instead
-    await sequelize.sync({ alter: true });
+    // Skip sync in production to avoid timeout - tables should already exist
+    // Run migrations or sync locally before deploying
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync({ alter: false });
+    }
     
     const connectTime = Date.now() - startTime;
     isConnected = true;
