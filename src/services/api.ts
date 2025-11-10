@@ -97,7 +97,7 @@ class ApiService {
 
   async login(email: string, password: string): Promise<ApiResponse<LoginData>> {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/auth/login`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -114,7 +114,7 @@ class ApiService {
 
   async register(userData: RegisterData): Promise<ApiResponse<LoginData>> {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/auth/register`, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
@@ -130,7 +130,7 @@ class ApiService {
   }
 
   async refreshToken(refreshToken: string): Promise<ApiResponse<{ accessToken: string; refreshToken: string }>> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/refresh-token`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/refresh-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken })
@@ -140,7 +140,7 @@ class ApiService {
   }
 
   async logout(refreshToken: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/logout`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/logout`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({ refreshToken })
@@ -150,7 +150,7 @@ class ApiService {
   }
 
   async getProfile(): Promise<ApiResponse<{ user: any }>> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/auth/profile`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/profile`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -160,7 +160,7 @@ class ApiService {
 
   async healthCheck(): Promise<ApiResponse> {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}/health`);
+      const response = await fetchWithTimeout(`${API_BASE_URL}/api/health`);
       return this.handleResponse(response);
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -172,7 +172,7 @@ class ApiService {
 
   // Tax Form APIs
   async createTaxForm(formData: any): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/tax`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tax`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(formData)
@@ -182,7 +182,7 @@ class ApiService {
 
   async getTaxForms(params?: any): Promise<ApiResponse> {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-    const response = await fetchWithTimeout(`${API_BASE_URL}/tax${queryString}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tax${queryString}`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -190,7 +190,7 @@ class ApiService {
   }
 
   async getTaxForm(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tax/${id}`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -198,7 +198,7 @@ class ApiService {
   }
 
   async updateTaxForm(id: string, formData: any): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tax/${id}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(formData)
@@ -207,7 +207,7 @@ class ApiService {
   }
 
   async submitForReview(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}/submit`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tax/${id}/submit`, {
       method: 'POST',
       headers: this.getAuthHeaders()
     });
@@ -215,7 +215,7 @@ class ApiService {
   }
 
   async getTaxSummary(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/tax/${id}/summary`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/tax/${id}/summary`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -225,7 +225,7 @@ class ApiService {
   // Document APIs
   async uploadDocument(formData: FormData): Promise<ApiResponse> {
     const token = localStorage.getItem('accessToken');
-    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/upload`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/documents/upload`, {
       method: 'POST',
       headers: {
         ...(token && { Authorization: `Bearer ${token}` })
@@ -237,7 +237,7 @@ class ApiService {
 
   async getDocuments(params?: any): Promise<ApiResponse> {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-    const response = await fetchWithTimeout(`${API_BASE_URL}/documents${queryString}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/documents${queryString}`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -245,7 +245,7 @@ class ApiService {
   }
 
   async getDocument(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/documents/${id}`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -254,7 +254,7 @@ class ApiService {
 
   async downloadDocument(id: string): Promise<Blob> {
     console.log('API: Downloading document with ID:', id);
-    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}/download`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/documents/${id}/download`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -273,7 +273,7 @@ class ApiService {
   }
 
   async updateDocument(id: string, data: any): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/documents/${id}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data)
@@ -282,7 +282,7 @@ class ApiService {
   }
 
   async deleteDocument(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/documents/${id}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/documents/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     });
@@ -292,7 +292,7 @@ class ApiService {
   // Notification APIs
   async getNotifications(params?: any): Promise<ApiResponse> {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
-    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications${queryString}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/notifications${queryString}`, {
       method: 'GET',
       headers: this.getAuthHeaders()
     });
@@ -300,7 +300,7 @@ class ApiService {
   }
 
   async markNotificationAsRead(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/${id}/read`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/notifications/${id}/read`, {
       method: 'POST',
       headers: this.getAuthHeaders()
     });
@@ -308,7 +308,7 @@ class ApiService {
   }
 
   async markAllNotificationsAsRead(): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/read-all`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/notifications/read-all`, {
       method: 'POST',
       headers: this.getAuthHeaders()
     });
@@ -316,7 +316,7 @@ class ApiService {
   }
 
   async deleteNotification(id: string): Promise<ApiResponse> {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/${id}`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/api/notifications/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     });
