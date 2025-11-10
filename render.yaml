@@ -1,19 +1,20 @@
 services:
   - type: web
     name: tax-management-backend
-    env: node
+    runtime: node
     region: oregon
     plan: free
-    buildCommand: cd server && npm install
-    startCommand: cd server && node app.js
+    branch: main
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node app.js
+    healthCheckPath: /api/health
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
         sync: false
       - key: JWT_REFRESH_SECRET
         sync: false
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
